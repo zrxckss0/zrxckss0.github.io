@@ -736,23 +736,19 @@
           <h1 class="hero-title">Just a programmer.</h1>
 
           <p class="hero-sub">
-            I can work with LuaU libraries, learn your game’s networking fast, and keep my code clean and organized.
-            I can do pretty much anything you need, and I’m also comfortable using third-party systems too (this includes Roblox API keys).
+            I work fast in LuaU, learn your networking + frameworks quickly, and keep code clean and scalable.
+            I build systems that feel stable in production (not just “works in Studio”).
           </p>
 
           <div class="badges">
             <div class="pill"><span class="dot"></span><span>LuaU</span></div>
-            <div class="pill"><span class="dot"></span><span>Java</span></div>
             <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(122,162,255,.95))"></span><span>RagePluginHook</span></div>
-            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(122,162,255,.95))"></span><span>Fivem</span></div>
-            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>UI/UX</span></div>
-            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>World Optimization</span></div>
-            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>GMT +2</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>UI Systems</span></div>
           </div>
 
           <div class="hero-cta">
             <a class="btn primary" href="#projects">See projects</a>
-            <a class="btn primary" href="#media">See media</a>
+            <a class="btn" href="#media">See media</a>
           </div>
         </div>
       </div>
@@ -788,8 +784,8 @@
     <section class="section reveal" id="projects">
       <div class="section-head">
         <div>
-          <h2>Featured scripts</h2>
-          <p class="lead">Each card is the overview :)</p>
+          <h2>Featured projects</h2>
+          <p class="lead">Each card is the overview. Click code if you want the implementation.</p>
         </div>
       </div>
 
@@ -854,35 +850,86 @@
   </div>
 
   <script>
+    const PROJECTS = [
+      {
+        id: "logger",
+        title: "LogService Module",
+        subtitle: "Structured logs + Discord webhook, tuned for studio/live",
+        summary: "A production logger that keeps output readable, routes by severity, and can push key errors to Discord so you don’t miss server issues.",
+        code: `-- paste your full module here`
+      },
+      {
+        id: "k9suite",
+        title: "K9 Control + Voice Command Suite",
+        subtitle: "Command handling, distance control, modes (follow/track/attack)",
+        summary: "A full K9 flow: voice-style commands, clean state switching, and predictable follow distance so the dog feels responsive instead of glitchy.",
+        code: `-- paste your K9 suite code here`
+      },
+      {
+        id: "inventory",
+        title: "Custom Inventory + Toolbar UI",
+        subtitle: "Drag & drop, keyboard/controller support, secondary inventory panel",
+        summary: "A clean inventory UI with drag-and-drop, quickbar logic, and input support across PC, console, and mobile without messy duplication.",
+        code: `-- paste your inventory code here`
+      },
+      {
+        id: "placement",
+        title: "Grid Placement System",
+        subtitle: "Preview + validation highlight + edit mode (no destroy/respawn)",
+        summary: "A placement controller for building/tycoon flows: snap-to-grid preview, valid/invalid feedback, and the ability to re-select and edit placed items.",
+        code: `local Placement = {}
+
+function Placement:SetPreview(model)
+  self.Preview = model
+end
+
+function Placement:SetValidity(isValid)
+  self.IsValid = isValid
+  if isValid then
+    self:ApplyHighlight("Valid")
+  else
+    self:ApplyHighlight("Invalid")
+  end
+end
+
+function Placement:Place()
+  if not self.IsValid then return false end
+  self:CommitPlacement()
+  return true
+end
+
+return Placement`
+      }
+    ]
+
     const elCards = document.getElementById("projectCards")
     const modalBackdrop = document.getElementById("modalBackdrop")
     const modalTitle = document.getElementById("modalTitle")
-    const modalSubtitle = document.getElementById("modalSubtitle")
     const modalBody = document.getElementById("modalBody")
     const modalClose = document.getElementById("modalClose")
 
-    function escapeHtml(s){
-      s = String(s ?? "")
-      return s
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;")
-    }
+    const escapeHtml = (s) => String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;")
 
-    function openModal(title, subtitle, html){
-      modalTitle.textContent = String(title ?? "")
-      modalSubtitle.textContent = String(subtitle ?? "")
-      modalBody.innerHTML = html
+    function openModal(title, bodyHtml){
+      modalTitle.textContent = title
+      modalBody.innerHTML = bodyHtml
       modalBackdrop.classList.add("show")
       document.body.style.overflow = "hidden"
+      requestAnimationFrame(() => {
+        const focusable = modalBackdrop.querySelector("button, input, a")
+        if (focusable) focusable.focus()
+      })
     }
 
     function closeModal(){
       modalBackdrop.classList.remove("show")
-      modalBody.innerHTML = ""
       document.body.style.overflow = ""
+      modalBody.innerHTML = ""
     }
 
     modalClose.addEventListener("click", closeModal)
@@ -893,491 +940,11 @@
       if (e.key === "Escape" && modalBackdrop.classList.contains("show")) closeModal()
     })
 
-    const PROJECTS = [
-      {
-        id: "logger",
-        title: "LogService Module",
-        subtitle: "Check out the code!",
-        summary: "My standard logger module, useful for keeping clean consoles in prod. Includes discord webhook support",
-        code: `-- My standard logger module, useful for keeping clean consoles in prod. Includes discord webhook support
-
---[[
-
-Example Usage:
-
-local LogService = require(ReplicatedStorage.LogService)
-LogService:Log(Enum.AnalyticsLogLevel.Warn, 'This is a warning message.')
-LogService:Warn('This is also a warning message!')
-
-LogLevels (Enum.AnalyticsLogLevel):
-{
-  [0] = Trace (TRA)
-  [1] = Debug (DEB)
-  [2] = Information (INF)
-  [3] = Warning (WARN)
-  [4] = Error (ERR)
-  [5] = Fatal (FAT)
-}
-
-Settings:
-{
-  LogInStudio: bool - Whether logs sent using this module should be printed in studio
-  MinimumLogLevel: number - The minimum log level to print
-
-  StudioMaximumLogLevel: number - The maximum log level that will be logged while in studio testing
-  StudioMinimumLogLevel: number - The minimum log level that will be logged while in studio testing
-
-  DiscordMinimumLogLevel: number - The minimum log level that will be send through the discord webhook, cannot be less than MinimumLogLevel
-}
-
-Make sure there is a StringValue inside ServerStorage named "WebhookUrl" in order to use the WebhookLogger
-
---]]
-
-local runs = game:GetService('RunService')
-local ss = game:GetService('ServerStorage')
-local http = game:GetService('HttpService')
-
-local module = {}
-
-local ShortLogLevels = {
-  [0] = 'TRA',
-  [1] = 'DEB',
-  [2] = 'INF',
-  [3] = 'WARN',
-  [4] = 'ERR',
-  [5] = 'FAT',
-}
-
-local EmbedColors = {
-  [Enum.AnalyticsLogLevel.Trace] = 8289918,
-  [Enum.AnalyticsLogLevel.Debug] = 8289918,
-  [Enum.AnalyticsLogLevel.Information] = 8289918,
-  [Enum.AnalyticsLogLevel.Warning] = 16749598,
-  [Enum.AnalyticsLogLevel.Error] = 16711680,
-  [Enum.AnalyticsLogLevel.Fatal] = 6881280,
-}
-
-local LogLevelFuncs = {
-  [0] = print,
-  [3] = warn,
-  [4] = error
-}
-
-local Settings = {
-  LogInStudio = script:GetAttribute('LogInStudio'),
-  MinimumLogLevel = script:GetAttribute('MinimumLogLevel'),
-  StudioMaximumLogLevel = script:GetAttribute('StudioMaximumLogLevel'),
-  StudioMinimumLogLevel = script:GetAttribute('StudioMinimumLogLevel'),
-  DiscordMinimumLogLevel = script:GetAttribute('DiscordMinimumLogLevel'),
-}
-
-local function SendRequest(Url:string, EncodedData:string, Attempt:number?)
-  Attempt = Attempt or 1
-
-  local succ,err = pcall(http.PostAsync, http, Url, EncodedData, Enum.HttpContentType.ApplicationJson)
-
-  if not succ and Attempt <= 3 then
-    task.wait(1)
-    SendRequest(Url, EncodedData, Attempt+1)
-  elseif not succ and Attempt > 3 then
-    task.spawn(error, \`Failed to send request to url ({Url}) with data:\`, EncodedData, \`\\nError: {err}\`)
-  end
-end
-
-local function TableToStr(Tbl, Ind)
-  if type(Tbl) ~= 'table' then return tostring(Tbl) end
-  if not Ind then Ind = 1 end
-
-  local Str = '{\\n'
-
-  for i,v in Tbl do
-    for i=1, Ind, 1 do Str ..= '\\t' end
-    Str ..= \`["{TableToStr(i, Ind+1)}"] = {TableToStr(v, Ind+1)},\\n\`
-  end
-
-  for i=1, Ind-1, 1 do Str ..= '\\t' end
-  Str ..= '}'
-
-  return Str
-end
-
-local function FormatLogMessage(...)
-  local Args = {...}
-
-  local Str = ''
-
-  for i,v in Args do
-    Str ..= \`{TableToStr(v)} \`
-  end
-
-  return Str
-end
-
-local function AttemptWebhookLog(Severity:Enum.AnalyticsLogLevel, ...)
-  if Severity.Value < Settings.DiscordMinimumLogLevel then return end
-
-  local WebHookUrl = ss:FindFirstChild('WebhookUrl')
-  if not WebHookUrl or WebHookUrl.Value == '' then return end
-
-  local Source = debug.info(4, 's')
-  local Line = debug.info(4, 'l')
-  local Name = debug.info(4, 'n')
-  local Origin = if #Name > 0 then \`[{Source}|{Name}:{Line}]\` else \`[{Source}:{Line}]\`
-
-  local Server = if game.JobId == '' then \`Local Server\` else \`Server #{game.JobId}\`
-
-  local Data = {
-    ['embeds'] = {{
-      ['description'] = FormatLogMessage(Origin, ...),
-      ['title'] = \`{Severity.Name} ({Server})\`,
-      ['color'] = EmbedColors[Severity]
-    }}
-  }
-  Data = http:JSONEncode(Data)
-
-  SendRequest(WebHookUrl.Value, Data)
-end
-
-local function CheckStudioShouldLog(Severity:Enum.AnalyticsLogLevel)
-  if Severity.Value > Settings.StudioMaximumLogLevel then return false end
-  if Severity.Value < Settings.StudioMinimumLogLevel then return false end
-  return true
-end
-
-local function CheckServerShouldLog(Severity:Enum.AnalyticsLogLevel)
-  if Severity.Value < Settings.MinimumLogLevel then return false end
-  return true
-end
-
-local function CheckClientShouldLog(Severity:Enum.AnalyticsLogLevel)
-  if Severity.Value < Settings.MinimumLogLevel then return false end
-  return true
-end
-
-local function Log(Severity:Enum.AnalyticsLogLevel, ...)
-  if runs:IsStudio() and not CheckStudioShouldLog(Severity) then return end
-  if not runs:IsStudio() and runs:IsServer() and not CheckServerShouldLog(Severity) then return end
-  if not runs:IsStudio() and runs:IsClient() and not CheckClientShouldLog(Severity) then return end
-
-  local Source = debug.info(3, 's')
-  local Line = debug.info(3, 'l')
-  local Name = debug.info(3, 'n')
-
-  local Level = \`[{ShortLogLevels[Severity.Value]}]\`
-  local Origin = if #Name > 0 then \`[{Source}|{Name}:{Line}:]\` else \`[{Source}:{Line}:]\`
-
-  local LogFunc = print
-  for i,v in LogLevelFuncs do
-    LogFunc = if i <= Severity.Value then v else LogFunc
-  end
-
-  task.spawn(LogFunc, FormatLogMessage(Level, Origin, ...))
-  AttemptWebhookLog(Severity, ...)
-end
-
-function module:Log(Severity:Enum.AnalyticsLogLevel, ...)
-  Log(Severity, ...)
-end
-
-function module:Trace(...)
-  Log(Enum.AnalyticsLogLevel.Trace, ...)
-end
-
-function module:Debug(...)
-  Log(Enum.AnalyticsLogLevel.Debug, ...)
-end
-
-function module:Info(...)
-  Log(Enum.AnalyticsLogLevel.Information, ...)
-end
-
-function module:Warn(...)
-  Log(Enum.AnalyticsLogLevel.Warning, ...)
-end
-
-function module:Error(...)
-  Log(Enum.AnalyticsLogLevel.Error, ...)
-end
-
-function module:Fatal(...)
-  Log(Enum.AnalyticsLogLevel.Fatal, ...)
-end
-
-return module`
-      },
-      {
-        id: "k9suite",
-        title: "StateSync",
-        subtitle: "Server Authoritative State Sync (Delta Replication)",
-        summary: "My custom state sync framework for server owned game data. Clients subscribe and receive a snapshot once, then only delta patches, with reactive observers for UI updates.",
-        code: `-- Server: create per-player state + replicate deltas
-local Players = game:GetService("Players")
-local StateSyncServer = require(game.ServerScriptService.StateSyncServer)
-
-local sync = StateSyncServer.new(1/20)
-
-Players.PlayerAdded:Connect(function(plr)
-  local ch = sync:CreateChannel("Player_" .. plr.UserId, {
-    Cash = 1000,
-    XP = 0,
-    Inventory = {},
-  })
-
-  ch:Subscribe(plr)
-
-  task.delay(2, function()
-    ch:Update(function(state)
-      state.XP += 50
-      table.insert(state.Inventory, { Id = "Medkit", Amount = 1 })
-      return state
-    end)
-  end)
-end)
-
--- Client: subscribe + react to changes
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local StateSyncClient = require(ReplicatedStorage.StateSync.StateSyncClient)
-local sync = StateSyncClient.new()
-
-local ch = sync:Subscribe("Player_" .. Players.LocalPlayer.UserId)
-
-ch:Observe(function(state)
-  return state.XP
-end, function(xp)
-  print("XP updated:", xp)
-end)`
-      },
-      {
-        id: "inventory",
-        title: "DataVault",
-        subtitle: "Profile Persistence + Autosave",
-        summary: "My data persistence system for player profiles (stats, inventory, settings). Includes session locking, autosave, retry/backoff, and clean versioned migrations to prevent wipes and duplicates.",
-        code: `local DataStoreService = game:GetService("DataStoreService")
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local DataVault = {}
-DataVault.__index = DataVault
-
-local function deepCopy(v, seen)
-  if type(v) ~= "table" then return v end
-  seen = seen or {}
-  if seen[v] then return seen[v] end
-  local t = {}
-  seen[v] = t
-  for k, val in pairs(v) do
-    t[deepCopy(k, seen)] = deepCopy(val, seen)
-  end
-  return t
-end
-
-local function reconcile(dst, template)
-  if type(template) ~= "table" then return dst end
-  if type(dst) ~= "table" then dst = {} end
-  for k, tv in pairs(template) do
-    if dst[k] == nil then
-      dst[k] = deepCopy(tv)
-    else
-      if type(tv) == "table" then
-        dst[k] = reconcile(dst[k], tv)
-      end
-    end
-  end
-  return dst
-end
-
-local function now()
-  return os.time()
-end
-
-local function backoff(attempt)
-  local a = math.clamp(attempt or 1, 1, 6)
-  return (2 ^ (a - 1)) + math.random()
-end
-
-local function keyFromUserId(prefix, userId)
-  return tostring(prefix) .. ":" .. tostring(userId)
-end
-
-local function isStaleLock(lock, staleSeconds)
-  if type(lock) ~= "table" then return true end
-  local ts = tonumber(lock.ts)
-  if not ts then return true end
-  return (now() - ts) > staleSeconds
-end
-
-local function joinError(...)
-  local parts = {}
-  for i = 1, select("#", ...) do
-    parts[i] = tostring(select(i, ...))
-  end
-  return table.concat(parts, " ")
-end
-
-local Profile = {}
-Profile.__index = Profile
-
-function Profile:Get()
-  return self.Data
-end
-
-function Profile:Set(path, value)
-  if type(path) ~= "table" or #path == 0 then
-    self.Data = value
-    self.Dirty = true
-    return
-  end
-  local node = self.Data
-  if type(node) ~= "table" then
-    node = {}
-    self.Data = node
-  end
-  for i = 1, #path - 1 do
-    local k = path[i]
-    local nextNode = node[k]
-    if type(nextNode) ~= "table" then
-      nextNode = {}
-      node[k] = nextNode
-    end
-    node = nextNode
-  end
-  node[path[#path]] = value
-  self.Dirty = true
-end
-
-function Profile:Update(fn)
-  local copy = deepCopy(self.Data)
-  local out = fn(copy)
-  if out ~= nil then
-    copy = out
-  end
-  self.Data = copy
-  self.Dirty = true
-end
-
-function Profile:OnRelease(fn)
-  table.insert(self._releaseHandlers, fn)
-end
-
-function Profile:Release()
-  if self.Released then return end
-  self.Released = true
-  for i = 1, #self._releaseHandlers do
-    task.spawn(self._releaseHandlers[i])
-  end
-end
-
-function DataVault.new(options)
-  local self = setmetatable({}, DataVault)
-  self.StoreName = assert(options and options.StoreName, "StoreName required")
-  self.KeyPrefix = options.KeyPrefix or "profile"
-  self.Template = options.Template or {}
-  self.SaveInterval = options.SaveInterval or 60
-  self.LockStaleSeconds = options.LockStaleSeconds or 120
-  self.MaxRetries = options.MaxRetries or 6
-  self.Version = options.Version or 1
-  self.Migrations = options.Migrations or {}
-
-  self._store = DataStoreService:GetDataStore(self.StoreName)
-  self._profiles = {}
-  self._closing = false
-
-  Players.PlayerRemoving:Connect(function(plr)
-    task.spawn(function()
-      self:Release(plr.UserId)
-    end)
-  end)
-
-  game:BindToClose(function()
-    self._closing = true
-    local tasks = {}
-    for userId in pairs(self._profiles) do
-      table.insert(tasks, task.spawn(function()
-        self:Release(userId)
-      end))
-    end
-    local start = os.clock()
-    while os.clock() - start < 8 do
-      local alive = false
-      for _, t in ipairs(tasks) do
-        if coroutine.status(t) ~= "dead" then
-          alive = true
-          break
-        end
-      end
-      if not alive then break end
-      task.wait(0.1)
-    end
-  end)
-
-  task.spawn(function()
-    while not self._closing do
-      task.wait(self.SaveInterval)
-      for userId, profile in pairs(self._profiles) do
-        if profile and not profile.Released then
-          self:Save(userId)
-        end
-      end
-    end
-  end)
-
-  return self
-end
-
-return DataVault`
-      },
-      {
-        id: "placement",
-        title: "NetGuard",
-        subtitle: "Secure Remote Framework + Rate Limits",
-        summary: "My networking layer that validates every remote call on the server. Includes per-action schemas, permission checks, anti-spam rate limits, and clean request/response patterns to keep exploits and messy remotes out.",
-        code: `local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-
-local NetGuard = {}
-NetGuard.__index = NetGuard
-
-local function ensureFolder()
-  local f = ReplicatedStorage:FindFirstChild("NetGuard")
-  if f and f:IsA("Folder") then return f end
-  f = Instance.new("Folder")
-  f.Name = "NetGuard"
-  f.Parent = ReplicatedStorage
-  return f
-end
-
-local function rateLimiterNew(rate, burst)
-  return { rate = rate, burst = burst, tokens = burst, last = os.clock() }
-end
-
-local function rateAllow(rl)
-  local t = os.clock()
-  local dt = t - rl.last
-  rl.last = t
-  rl.tokens = math.min(rl.burst, rl.tokens + dt * rl.rate)
-  if rl.tokens >= 1 then
-    rl.tokens -= 1
-    return true
-  end
-  return false
-end
-
-local function mkErr(code, msg)
-  return { ok = false, code = code, message = msg }
-end
-
-return NetGuard`
-      }
-    ]
-
     function buildCode(project){
-      const raw = project.code || ""
-      const safe = escapeHtml(raw)
       const codeId = `code_${project.id}`
       const qId = `q_${project.id}`
+      const raw = project.code || ""
+      const safe = escapeHtml(raw)
 
       return `
         <div class="code-toolbar">
@@ -1400,10 +967,6 @@ return NetGuard`
           <div>Tip: <span class="kbd">Esc</span> closes</div>
         </div>
       `
-    }
-
-    function getProject(id){
-      return PROJECTS.find(p => p.id === id)
     }
 
     function renderCards(){
@@ -1442,6 +1005,39 @@ return NetGuard`
       }).join("")
     }
 
+    function getProject(id){
+      return PROJECTS.find(p => p.id === id)
+    }
+
+    function attachHandlers(){
+      document.addEventListener("click", async (e) => {
+        const codeBtn = e.target.closest("[data-open-code]")
+        const copyBtn = e.target.closest("[data-copy]")
+
+        if (codeBtn){
+          const p = getProject(codeBtn.getAttribute("data-open-code"))
+          if (!p) return
+          openModal(p.title, buildCode(p))
+          bindCodeFeatures(p.id)
+          return
+        }
+
+        if (copyBtn){
+          const id = copyBtn.getAttribute("data-copy")
+          const p = getProject(id)
+          if (!p) return
+          try{
+            await navigator.clipboard.writeText(p.code || "")
+            copyBtn.textContent = "Copied"
+            setTimeout(() => copyBtn.textContent = "Copy", 900)
+          }catch{
+            copyBtn.textContent = "Copy failed"
+            setTimeout(() => copyBtn.textContent = "Copy", 900)
+          }
+        }
+      })
+    }
+
     function bindCodeFeatures(projectId){
       const p = getProject(projectId)
       if (!p) return
@@ -1468,44 +1064,6 @@ return NetGuard`
       q.addEventListener("input", () => render(q.value.trim()))
       q.focus()
     }
-
-    document.addEventListener("click", async (e) => {
-      const codeBtn = e.target.closest("[data-open-code]")
-      const copyBtn = e.target.closest("[data-copy]")
-
-      if (codeBtn){
-        const p = getProject(codeBtn.getAttribute("data-open-code"))
-        if (!p) return
-        openModal(p.title, p.subtitle, buildCode(p))
-        bindCodeFeatures(p.id)
-        return
-      }
-
-      if (copyBtn){
-        const id = copyBtn.getAttribute("data-copy")
-        const p = getProject(id)
-        if (!p) return
-        try{
-          await navigator.clipboard.writeText(p.code || "")
-          copyBtn.textContent = "Copied"
-          setTimeout(() => copyBtn.textContent = "Copy", 900)
-        }catch{
-          try{
-            const ta = document.createElement("textarea")
-            ta.value = p.code || ""
-            document.body.appendChild(ta)
-            ta.select()
-            document.execCommand("copy")
-            ta.remove()
-            copyBtn.textContent = "Copied"
-            setTimeout(() => copyBtn.textContent = "Copy", 900)
-          }catch{
-            copyBtn.textContent = "Copy failed"
-            setTimeout(() => copyBtn.textContent = "Copy", 900)
-          }
-        }
-      }
-    })
 
     const toggle = document.getElementById("themeToggle")
     const root = document.documentElement
@@ -1554,12 +1112,13 @@ return NetGuard`
           raf = 0
           const x = (ev.clientX / window.innerWidth - 0.5) * 10
           const y = (ev.clientY / window.innerHeight - 0.5) * 10
-          grid.style.transform = \`translate3d(\${x}px, \${y}px, 0)\`
+          grid.style.transform = `translate3d(${x}px, ${y}px, 0)`
         })
       }, { passive:true })
     }
 
     renderCards()
+    attachHandlers()
     setupReveal()
     setupParallax()
     document.getElementById("year").textContent = String(new Date().getFullYear())
