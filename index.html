@@ -736,19 +736,23 @@
           <h1 class="hero-title">Just a programmer.</h1>
 
           <p class="hero-sub">
-            I work fast in LuaU, learn your networking + frameworks quickly, and keep code clean and scalable.
-            I build systems that feel stable in production (not just “works in Studio”).
+        I can work with LuaU libraries, learn your game’s networking fast, and keep my code clean and organized.
+            I can do pretty much anything you need, and I’m also comfortable using third-party systems too (this incldues roblox api keys).
           </p>
 
           <div class="badges">
             <div class="pill"><span class="dot"></span><span>LuaU</span></div>
+             <div class="pill"><span class="dot"></span><span>Java</span></div>
             <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(122,162,255,.95))"></span><span>RagePluginHook</span></div>
-            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>UI Systems</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(122,162,255,.95))"></span><span>Fivem</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>UI/UX</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>World Optimization</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>GMT +2</span></div>
           </div>
 
           <div class="hero-cta">
             <a class="btn primary" href="#projects">See projects</a>
-            <a class="btn" href="#media">See media</a>
+            <a class="btn primary" href="#media">See media</a>
           </div>
         </div>
       </div>
@@ -784,8 +788,8 @@
     <section class="section reveal" id="projects">
       <div class="section-head">
         <div>
-          <h2>Featured projects</h2>
-          <p class="lead">Each card is the overview. Click code if you want the implementation.</p>
+          <h2>Featured scripts/h2>
+          <p class="lead">Each card is the overview :)</p>
         </div>
       </div>
 
@@ -854,30 +858,916 @@
       {
         id: "logger",
         title: "LogService Module",
-        subtitle: "Structured logs + Discord webhook, tuned for studio/live",
-        summary: "A production logger that keeps output readable, routes by severity, and can push key errors to Discord so you don’t miss server issues.",
-        code: `-- paste your full module here`
+        subtitle: "Check out the code!",
+        summary: "My standard logger module, useful for keeping clean consoles in prod. Includes discord webhook support",
+        code: ` -- My standard logger module, useful for keeping clean consoles in prod. Includes discord webhook support
+
+--[[
+
+Example Usage:
+	
+local LogService = require(ReplicatedStorage.LogService)
+LogService:Log(Enum.AnalyticsLogLevel.Warn, 'This is a warning message.')
+LogService:Warn('This is also a warning message!')
+
+
+LogLevels (Enum.AnalyticsLogLevel):
+{
+  [0] = Trace (TRA)
+  [1] = Debug (DEB)
+  [2] = Information (INF)
+  [3] = Warning (WARN)
+  [4] = Error (ERR)
+  [5] = Fatal (FAT)
+}
+
+
+Settings:
+{
+  LogInStudio: bool - Whether logs sent using this module should be printed in studio
+  MinimumLogLevel: number - The minimum log level to print
+  
+  StudioMaximumLogLevel: number - The maximum log level that will be logged while in studio testing
+  StudioMinimumLogLevel: number - The minimum log level that will be logged while in studio testing
+  
+  DiscordMinimumLogLevel: number - The minimum log level that will be send through the discord webhook, cannot be less than MinimumLogLevel
+}
+
+Make sure there is a StringValue inside ServerStorage named "WebhookUrl" in order to use the WebhookLogger
+
+--]]
+
+local runs = game:GetService('RunService')
+local ss = game:GetService('ServerStorage')
+local http = game:GetService('HttpService')
+
+local module = {}
+
+local ShortLogLevels = {
+	[0] = 'TRA',
+	[1] = 'DEB',
+	[2] = 'INF',
+	[3] = 'WARN',
+	[4] = 'ERR',
+	[5] = 'FAT',
+}
+
+local EmbedColors = {
+	[Enum.AnalyticsLogLevel.Trace] = 8289918,
+	[Enum.AnalyticsLogLevel.Debug] = 8289918,
+	[Enum.AnalyticsLogLevel.Information] = 8289918,
+	[Enum.AnalyticsLogLevel.Warning] = 16749598,
+	[Enum.AnalyticsLogLevel.Error] = 16711680,
+	[Enum.AnalyticsLogLevel.Fatal] = 6881280,
+}
+
+local LogLevelFuncs = {
+	[0] = print,
+	[3] = warn,
+	[4] = error
+}
+
+local Settings = {
+	LogInStudio = script:GetAttribute('LogInStudio'),
+	MinimumLogLevel = script:GetAttribute('MinimumLogLevel'),
+	StudioMaximumLogLevel = script:GetAttribute('StudioMaximumLogLevel'),
+	StudioMinimumLogLevel = script:GetAttribute('StudioMinimumLogLevel'),
+	DiscordMinimumLogLevel = script:GetAttribute('DiscordMinimumLogLevel'),
+}
+
+local function SendRequest(Url:string, EncodedData:string, Attempt:number?)
+	Attempt = Attempt or 1
+	
+	local succ,err = pcall(http.PostAsync, http, Url, EncodedData, Enum.HttpContentType.ApplicationJson)
+
+	if not succ and Attempt <= 3 then
+		task.wait(1)
+		SendRequest(Url, EncodedData, Attempt+1)
+	elseif not succ and Attempt > 3 then
+		task.spawn(error, `Failed to send request to url ({Url}) with data: `, EncodedData, `\nError: {err}`)
+	end
+end
+
+local function TableToStr(Tbl, Ind)
+	if type(Tbl) ~= 'table' then return tostring(Tbl) end
+	if not Ind then Ind = 1 end
+	
+	local Str = '{\n'
+
+	for i,v in Tbl do
+		for i=1, Ind, 1 do Str ..= '	' end
+		Str ..= `["{TableToStr(i, Ind+1)}"] = {TableToStr(v, Ind+1)},\n`
+	end
+
+	for i=1, Ind-1, 1 do Str ..= '	' end
+	Str ..= '}'
+	
+	return Str
+end
+
+local function FormatLogMessage(...)
+	local Args = {...}
+	
+	local Str = ''
+	
+	for i,v in Args do
+		Str ..= `{TableToStr(v)} `
+	end
+	
+	return Str
+end
+
+local function AttemptWebhookLog(Severity:Enum.AnalyticsLogLevel, ...)
+	if Severity.Value < Settings.DiscordMinimumLogLevel then return end
+	
+	local WebHookUrl = ss:FindFirstChild('WebhookUrl')
+	if not WebHookUrl or WebHookUrl.Value == '' then return end
+
+	local Source = debug.info(4, 's')
+	local Line = debug.info(4, 'l')
+	local Name = debug.info(4, 'n')
+	local Origin = if #Name > 0 then `[{Source}|{Name}:{Line}]` else `[{Source}:{Line}]`
+	
+	local Server = if game.JobId == '' then `Local Server` else `Server #{game.JobId}`
+	
+	local Data = {
+		['embeds'] = {{
+			['description'] = FormatLogMessage(Origin, ...),
+			['title'] = `{Severity.Name} ({Server})`,
+			['color'] = EmbedColors[Severity]
+
+		}}
+	}
+	Data = http:JSONEncode(Data)
+	
+	SendRequest(WebHookUrl.Value, Data)
+end
+
+local function CheckStudioShouldLog(Severity:Enum.AnalyticsLogLevel)
+	if Severity.Value > Settings.StudioMaximumLogLevel then return false end
+	if Severity.Value < Settings.StudioMinimumLogLevel then return false end
+
+	return true
+end
+
+local function CheckServerShouldLog(Severity:Enum.AnalyticsLogLevel)
+	if Severity.Value < Settings.MinimumLogLevel then return false end
+
+	return true
+end
+
+local function CheckClientShouldLog(Severity:Enum.AnalyticsLogLevel)
+	if Severity.Value < Settings.MinimumLogLevel then return false end
+
+	return true
+end
+
+local function Log(Severity:Enum.AnalyticsLogLevel, ...)
+	if runs:IsStudio() and not CheckStudioShouldLog(Severity) then return end
+	if not runs:IsStudio() and runs:IsServer() and not CheckServerShouldLog(Severity) then return end
+	if not runs:IsStudio() and runs:IsClient() and not CheckClientShouldLog(Severity) then return end
+
+	local Source = debug.info(3, 's')
+	local Line = debug.info(3, 'l')
+	local Name = debug.info(3, 'n')
+
+	local Level = `[{ShortLogLevels[Severity.Value]}]`
+	local Origin = if #Name > 0 then `[{Source}|{Name}:{Line}:]` else `[{Source}:{Line}:]`
+	
+	local LogFunc = print
+	for i,v in LogLevelFuncs do
+		LogFunc = if i <= Severity.Value then v else LogFunc
+	end
+	
+	task.spawn(LogFunc, FormatLogMessage(Level, Origin, ...))
+	
+	AttemptWebhookLog(Severity, ...)
+end
+
+function module:Log(Severity:Enum.AnalyticsLogLevel, ...)
+	Log(Severity, ...)
+end
+
+function module:Trace(...)
+	Log(Enum.AnalyticsLogLevel.Trace, ...)
+end
+
+function module:Debug(...)
+	Log(Enum.AnalyticsLogLevel.Debug, ...)
+end
+
+function module:Info(...)
+	Log(Enum.AnalyticsLogLevel.Information, ...)
+end
+
+function module:Warn(...)
+	Log(Enum.AnalyticsLogLevel.Warning, ...)
+end
+
+function module:Error(...)
+	Log(Enum.AnalyticsLogLevel.Error, ...)
+end
+
+function module:Fatal(...)
+	Log(Enum.AnalyticsLogLevel.Fatal, ...)
+end
+
+return module
+`
       },
       {
         id: "k9suite",
-        title: "K9 Control + Voice Command Suite",
-        subtitle: "Command handling, distance control, modes (follow/track/attack)",
-        summary: "A full K9 flow: voice-style commands, clean state switching, and predictable follow distance so the dog feels responsive instead of glitchy.",
-        code: `-- paste your K9 suite code here`
+        title: "StateSync",
+        subtitle: "Server Authoritative State Sync (Delta Replication)",
+        summary: "My custom state sync framework for server owned game data. Clients subscribe and receive a snapshot once, then only delta patches, with reactive observers for UI updates.",
+        code: `        
+-- Server: create per-player state + replicate deltas
+local Players = game:GetService("Players")
+local StateSyncServer = require(game.ServerScriptService.StateSyncServer)
+
+local sync = StateSyncServer.new(1/20)
+
+Players.PlayerAdded:Connect(function(plr)
+	local ch = sync:CreateChannel("Player_" .. plr.UserId, {
+		Cash = 1000,
+		XP = 0,
+		Inventory = {},
+	})
+
+	ch:Subscribe(plr)
+
+	task.delay(2, function()
+		ch:Update(function(state)
+			state.XP += 50
+			table.insert(state.Inventory, { Id = "Medkit", Amount = 1 })
+			return state
+		end)
+	end)
+end)
+
+-- Client: subscribe + react to changes
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local StateSyncClient = require(ReplicatedStorage.StateSync.StateSyncClient)
+local sync = StateSyncClient.new()
+
+local ch = sync:Subscribe("Player_" .. Players.LocalPlayer.UserId)
+
+ch:Observe(function(state)
+	return state.XP
+end, function(xp)
+	print("XP updated:", xp)
+end)`
       },
       {
         id: "inventory",
-        title: "Custom Inventory + Toolbar UI",
-        subtitle: "Drag & drop, keyboard/controller support, secondary inventory panel",
-        summary: "A clean inventory UI with drag-and-drop, quickbar logic, and input support across PC, console, and mobile without messy duplication.",
-        code: `-- paste your inventory code here`
+        title: "DataVault",
+        subtitle: "Profile Persistence + Autosave",
+        summary: "My data persistence system for player profiles (stats, inventory, settings). Includes session locking, autosave, retry/backoff, and clean versioned migrations to prevent wipes and duplicates.",
+        code: `local DataStoreService = game:GetService("DataStoreService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local DataVault = {}
+DataVault.__index = DataVault
+
+local function deepCopy(v, seen)
+	if type(v) ~= "table" then return v end
+	seen = seen or {}
+	if seen[v] then return seen[v] end
+	local t = {}
+	seen[v] = t
+	for k, val in pairs(v) do
+		t[deepCopy(k, seen)] = deepCopy(val, seen)
+	end
+	return t
+end
+
+local function reconcile(dst, template)
+	if type(template) ~= "table" then return dst end
+	if type(dst) ~= "table" then dst = {} end
+	for k, tv in pairs(template) do
+		if dst[k] == nil then
+			dst[k] = deepCopy(tv)
+		else
+			if type(tv) == "table" then
+				dst[k] = reconcile(dst[k], tv)
+			end
+		end
+	end
+	return dst
+end
+
+local function now()
+	return os.time()
+end
+
+local function backoff(attempt)
+	local a = math.clamp(attempt or 1, 1, 6)
+	return (2 ^ (a - 1)) + math.random()
+end
+
+local function keyFromUserId(prefix, userId)
+	return tostring(prefix) .. ":" .. tostring(userId)
+end
+
+local function isStaleLock(lock, staleSeconds)
+	if type(lock) ~= "table" then return true end
+	local ts = tonumber(lock.ts)
+	if not ts then return true end
+	return (now() - ts) > staleSeconds
+end
+
+local function joinError(...)
+	local parts = {}
+	for i = 1, select("#", ...) do
+		parts[i] = tostring(select(i, ...))
+	end
+	return table.concat(parts, " ")
+end
+
+local Profile = {}
+Profile.__index = Profile
+
+function Profile:Get()
+	return self.Data
+end
+
+function Profile:Set(path, value)
+	if type(path) ~= "table" or #path == 0 then
+		self.Data = value
+		self.Dirty = true
+		return
+	end
+	local node = self.Data
+	if type(node) ~= "table" then
+		node = {}
+		self.Data = node
+	end
+	for i = 1, #path - 1 do
+		local k = path[i]
+		local nextNode = node[k]
+		if type(nextNode) ~= "table" then
+			nextNode = {}
+			node[k] = nextNode
+		end
+		node = nextNode
+	end
+	node[path[#path]] = value
+	self.Dirty = true
+end
+
+function Profile:Update(fn)
+	local copy = deepCopy(self.Data)
+	local out = fn(copy)
+	if out ~= nil then
+		copy = out
+	end
+	self.Data = copy
+	self.Dirty = true
+end
+
+function Profile:OnRelease(fn)
+	table.insert(self._releaseHandlers, fn)
+end
+
+function Profile:Release()
+	if self.Released then return end
+	self.Released = true
+	for i = 1, #self._releaseHandlers do
+		task.spawn(self._releaseHandlers[i])
+	end
+end
+
+function DataVault.new(options)
+	local self = setmetatable({}, DataVault)
+	self.StoreName = assert(options and options.StoreName, "StoreName required")
+	self.KeyPrefix = options.KeyPrefix or "profile"
+	self.Template = options.Template or {}
+	self.SaveInterval = options.SaveInterval or 60
+	self.LockStaleSeconds = options.LockStaleSeconds or 120
+	self.MaxRetries = options.MaxRetries or 6
+	self.Version = options.Version or 1
+	self.Migrations = options.Migrations or {}
+
+	self._store = DataStoreService:GetDataStore(self.StoreName)
+	self._profiles = {}
+	self._closing = false
+
+	Players.PlayerRemoving:Connect(function(plr)
+		task.spawn(function()
+			self:Release(plr.UserId)
+		end)
+	end)
+
+	game:BindToClose(function()
+		self._closing = true
+		local tasks = {}
+		for userId in pairs(self._profiles) do
+			table.insert(tasks, task.spawn(function()
+				self:Release(userId)
+			end))
+		end
+		local start = os.clock()
+		while os.clock() - start < 8 do
+			local alive = false
+			for _, t in ipairs(tasks) do
+				if coroutine.status(t) ~= "dead" then
+					alive = true
+					break
+				end
+			end
+			if not alive then break end
+			task.wait(0.1)
+		end
+	end)
+
+	task.spawn(function()
+		while not self._closing do
+			task.wait(self.SaveInterval)
+			for userId, profile in pairs(self._profiles) do
+				if profile and not profile.Released then
+					self:Save(userId)
+				end
+			end
+		end
+	end)
+
+	return self
+end
+
+function DataVault:_applyMigrations(blob)
+	local meta = blob.meta or {}
+	local data = blob.data
+	local fromV = tonumber(meta.v) or 1
+	local toV = self.Version
+
+	if fromV > toV then
+		meta.v = toV
+		blob.meta = meta
+		return blob
+	end
+
+	while fromV < toV do
+		local nextV = fromV + 1
+		local mig = self.Migrations[nextV]
+		if type(mig) == "function" then
+			local ok, newData = pcall(mig, deepCopy(data))
+			if ok and newData ~= nil then
+				data = newData
+			end
+		end
+		fromV = nextV
+	end
+
+	meta.v = toV
+	blob.meta = meta
+	blob.data = data
+	return blob
+end
+
+function DataVault:_tryLoad(userId)
+	local key = keyFromUserId(self.KeyPrefix, userId)
+	local jobId = game.JobId == "" and "local" or game.JobId
+
+	local outBlob
+	local ok, err = pcall(function()
+		outBlob = self._store:UpdateAsync(key, function(old)
+			local blob = old
+			if type(blob) ~= "table" then
+				blob = { meta = {}, data = deepCopy(self.Template) }
+			end
+			blob.meta = blob.meta or {}
+			blob.data = blob.data
+			if type(blob.data) ~= "table" then
+				blob.data = deepCopy(self.Template)
+			end
+
+			local lock = blob.meta.lock
+			if lock and lock.job and lock.job ~= jobId and not isStaleLock(lock, self.LockStaleSeconds) then
+				return nil
+			end
+
+			blob = self:_applyMigrations(blob)
+			blob.data = reconcile(blob.data, self.Template)
+
+			blob.meta.lock = { job = jobId, ts = now() }
+			blob.meta.lastSave = blob.meta.lastSave or now()
+
+			return blob
+		end)
+	end)
+
+	if not ok then
+		return false, joinError("UpdateAsync failed:", err)
+	end
+	if outBlob == nil then
+		return false, "Profile is locked by another server"
+	end
+
+	return true, outBlob
+end
+
+function DataVault:Load(playerOrUserId)
+	local userId = typeof(playerOrUserId) == "Instance" and playerOrUserId.UserId or playerOrUserId
+	assert(type(userId) == "number", "userId required")
+	if self._profiles[userId] then
+		return self._profiles[userId]
+	end
+
+	local lastErr
+	for attempt = 1, self.MaxRetries do
+		local ok, res = self:_tryLoad(userId)
+		if ok then
+			local blob = res
+			local profile = setmetatable({}, Profile)
+			profile.UserId = userId
+			profile.Meta = blob.meta or {}
+			profile.Data = blob.data or {}
+			profile.Dirty = false
+			profile.Released = false
+			profile._releaseHandlers = {}
+
+			self._profiles[userId] = profile
+			return profile
+		else
+			lastErr = res
+			task.wait(backoff(attempt))
+		end
+	end
+
+	error(joinError("DataVault Load failed for", userId, ":", lastErr))
+end
+
+function DataVault:_trySave(userId, releaseLock)
+	local profile = self._profiles[userId]
+	if not profile then return true end
+
+	if not profile.Dirty and not releaseLock then
+		return true
+	end
+
+	local key = keyFromUserId(self.KeyPrefix, userId)
+	local jobId = game.JobId == "" and "local" or game.JobId
+
+	local ok, err = pcall(function()
+		self._store:UpdateAsync(key, function(old)
+			local blob = old
+			if type(blob) ~= "table" then
+				blob = { meta = {}, data = {} }
+			end
+			blob.meta = blob.meta or {}
+			blob.data = blob.data
+
+			local lock = blob.meta.lock
+			if type(lock) ~= "table" or lock.job ~= jobId then
+				return nil
+			end
+
+			blob = self:_applyMigrations(blob)
+			blob.data = deepCopy(profile.Data)
+			blob.meta.lastSave = now()
+
+			if releaseLock then
+				blob.meta.lock = nil
+			else
+				blob.meta.lock = { job = jobId, ts = now() }
+			end
+
+			return blob
+		end)
+	end)
+
+	if not ok then
+		return false, joinError("Save UpdateAsync failed:", err)
+	end
+
+	profile.Dirty = false
+	return true
+end
+
+function DataVault:Save(playerOrUserId)
+	local userId = typeof(playerOrUserId) == "Instance" and playerOrUserId.UserId or playerOrUserId
+	assert(type(userId) == "number", "userId required")
+
+	local lastErr
+	for attempt = 1, self.MaxRetries do
+		local ok, err = self:_trySave(userId, false)
+		if ok then
+			return true
+		else
+			lastErr = err
+			task.wait(backoff(attempt))
+		end
+	end
+
+	return false, lastErr
+end
+
+function DataVault:Release(playerOrUserId)
+	local userId = typeof(playerOrUserId) == "Instance" and playerOrUserId.UserId or playerOrUserId
+	assert(type(userId) == "number", "userId required")
+
+	local profile = self._profiles[userId]
+	if not profile then return true end
+
+	local lastErr
+	for attempt = 1, self.MaxRetries do
+		local ok, err = self:_trySave(userId, true)
+		if ok then
+			profile:Release()
+			self._profiles[userId] = nil
+			return true
+		else
+			lastErr = err
+			task.wait(backoff(attempt))
+		end
+	end
+
+	profile:Release()
+	self._profiles[userId] = nil
+	return false, lastErr
+end
+
+function DataVault:GetProfile(playerOrUserId)
+	local userId = typeof(playerOrUserId) == "Instance" and playerOrUserId.UserId or playerOrUserId
+	return self._profiles[userId]
+end
+
+return DataVault`
       },
       {
         id: "placement",
-        title: "Grid Placement System",
-        subtitle: "Preview + validation highlight + edit mode (no destroy/respawn)",
-        summary: "A placement controller for building/tycoon flows: snap-to-grid preview, valid/invalid feedback, and the ability to re-select and edit placed items.",
-        code: `local Placement = {}
+        title: "NetGuard",
+        subtitle: "Secure Remote Framework + Rate Limits",
+        summary: "My networking layer that validates every remote call on the server. Includes per-action schemas, permission checks, anti-spam rate limits, and clean request/response patterns to keep exploits and messy remotes out.",
+        code: `local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local NetGuard = {}
+NetGuard.__index = NetGuard
+
+local function ensureFolder()
+	local f = ReplicatedStorage:FindFirstChild("NetGuard")
+	if f and f:IsA("Folder") then return f end
+	f = Instance.new("Folder")
+	f.Name = "NetGuard"
+	f.Parent = ReplicatedStorage
+	return f
+end
+
+local function deepCopy(v, seen)
+	if type(v) ~= "table" then return v end
+	seen = seen or {}
+	if seen[v] then return seen[v] end
+	local t = {}
+	seen[v] = t
+	for k, val in pairs(v) do
+		t[deepCopy(k, seen)] = deepCopy(val, seen)
+	end
+	return t
+end
+
+local function rateLimiterNew(rate, burst)
+	return { rate = rate, burst = burst, tokens = burst, last = os.clock() }
+end
+
+local function rateAllow(rl)
+	local t = os.clock()
+	local dt = t - rl.last
+	rl.last = t
+	rl.tokens = math.min(rl.burst, rl.tokens + dt * rl.rate)
+	if rl.tokens >= 1 then
+		rl.tokens -= 1
+		return true
+	end
+	return false
+end
+
+local function mkErr(code, msg)
+	return { ok = false, code = code, message = msg }
+end
+
+local function validate(schema, value, path)
+	path = path or ""
+	if schema == nil then
+		return true
+	end
+
+	local st = schema.t
+	if st == "any" or st == nil then
+		return true
+	end
+
+	if st == "string" then
+		if type(value) ~= "string" then return false, mkErr("type", path .. " expected string") end
+		if schema.min and #value < schema.min then return false, mkErr("min", path .. " too short") end
+		if schema.max and #value > schema.max then return false, mkErr("max", path .. " too long") end
+		if schema.enum then
+			local ok = false
+			for i = 1, #schema.enum do
+				if value == schema.enum[i] then ok = true break end
+			end
+			if not ok then return false, mkErr("enum", path .. " invalid value") end
+		end
+		return true
+	end
+
+	if st == "number" then
+		if type(value) ~= "number" then return false, mkErr("type", path .. " expected number") end
+		if schema.min and value < schema.min then return false, mkErr("min", path .. " too small") end
+		if schema.max and value > schema.max then return false, mkErr("max", path .. " too large") end
+		return true
+	end
+
+	if st == "boolean" then
+		if type(value) ~= "boolean" then return false, mkErr("type", path .. " expected boolean") end
+		return true
+	end
+
+	if st == "table" then
+		if type(value) ~= "table" then return false, mkErr("type", path .. " expected table") end
+		return true
+	end
+
+	if st == "array" then
+		if type(value) ~= "table" then return false, mkErr("type", path .. " expected array") end
+		local item = schema.item
+		local count = 0
+		for k, v in pairs(value) do
+			if type(k) ~= "number" then return false, mkErr("array", path .. " non-numeric key") end
+			count += 1
+			local ok, e = validate(item, v, path .. "[" .. tostring(k) .. "]")
+			if not ok then return false, e end
+		end
+		if schema.min and count < schema.min then return false, mkErr("min", path .. " not enough items") end
+		if schema.max and count > schema.max then return false, mkErr("max", path .. " too many items") end
+		return true
+	end
+
+	if st == "object" then
+		if type(value) ~= "table" then return false, mkErr("type", path .. " expected object") end
+		local shape = schema.shape or {}
+		for key, subSchema in pairs(shape) do
+			local v = value[key]
+			if v == nil then
+				if not subSchema.optional then
+					return false, mkErr("missing", (path .. "." .. tostring(key)) .. " missing")
+				end
+			else
+				local ok, e = validate(subSchema, v, path .. "." .. tostring(key))
+				if not ok then return false, e end
+			end
+		end
+		if schema.strict then
+			for k in pairs(value) do
+				if shape[k] == nil then
+					return false, mkErr("strict", path .. " unknown key " .. tostring(k))
+				end
+			end
+		end
+		return true
+	end
+
+	return false, mkErr("schema", path .. " unknown schema")
+end
+
+function NetGuard.new()
+	local self = setmetatable({}, NetGuard)
+	self._folder = ensureFolder()
+	self._endpoints = {}
+	self._rl = {}
+	Players.PlayerRemoving:Connect(function(plr)
+		self._rl[plr] = nil
+	end)
+	return self
+end
+
+function NetGuard:CreateRequest(name, schema, handler, opts)
+	assert(type(name) == "string" and #name > 0, "name required")
+	assert(type(handler) == "function", "handler required")
+	opts = opts or {}
+
+	local rf = self._folder:FindFirstChild(name)
+	if rf then
+		rf:Destroy()
+	end
+	rf = Instance.new("RemoteFunction")
+	rf.Name = name
+	rf.Parent = self._folder
+
+	local rate = opts.ratePerSecond or 10
+	local burst = opts.burst or math.max(10, rate)
+	local permission = opts.permission
+
+	self._endpoints[name] = {
+		kind = "rf",
+		schema = schema,
+		handler = handler,
+		opts = opts,
+	}
+
+	rf.OnServerInvoke = function(player, payload)
+		self._rl[player] = self._rl[player] or {}
+		local rl = self._rl[player][name]
+		if not rl then
+			rl = rateLimiterNew(rate, burst)
+			self._rl[player][name] = rl
+		end
+		if not rateAllow(rl) then
+			return mkErr("rate", "rate limited")
+		end
+
+		local ok, e = validate(schema, payload, name)
+		if not ok then
+			return e
+		end
+
+		if type(permission) == "function" then
+			local allowed
+			local psucc, perr = pcall(function()
+				allowed = permission(player, payload)
+			end)
+			if not psucc then
+				return mkErr("permission", "permission check failed")
+			end
+			if not allowed then
+				return mkErr("permission", "not allowed")
+			end
+		end
+
+		local result
+		local hs, herr = pcall(function()
+			result = handler(player, payload)
+		end)
+		if not hs then
+			return mkErr("server", "handler error")
+		end
+
+		return { ok = true, data = result }
+	end
+
+	return rf
+end
+
+function NetGuard:CreateEvent(name, schema, handler, opts)
+	assert(type(name) == "string" and #name > 0, "name required")
+	assert(type(handler) == "function", "handler required")
+	opts = opts or {}
+
+	local re = self._folder:FindFirstChild(name)
+	if re then
+		re:Destroy()
+	end
+	re = Instance.new("RemoteEvent")
+	re.Name = name
+	re.Parent = self._folder
+
+	local rate = opts.ratePerSecond or 15
+	local burst = opts.burst or math.max(15, rate)
+	local permission = opts.permission
+
+	self._endpoints[name] = {
+		kind = "re",
+		schema = schema,
+		handler = handler,
+		opts = opts,
+	}
+
+	re.OnServerEvent:Connect(function(player, payload)
+		self._rl[player] = self._rl[player] or {}
+		local rl = self._rl[player][name]
+		if not rl then
+			rl = rateLimiterNew(rate, burst)
+			self._rl[player][name] = rl
+		end
+		if not rateAllow(rl) then
+			return
+		end
+
+		local ok = validate(schema, payload, name)
+		if not ok then
+			return
+		end
+
+		if type(permission) == "function" then
+			local allowed
+			local psucc = pcall(function()
+				allowed = permission(player, payload)
+			end)
+			if not psucc or not allowed then
+				return
+			end
+		end
+
+		task.spawn(handler, player, payload)
+	end)
+
+	return re
+end
+
+return NetGuard'
 
 function Placement:SetPreview(model)
   self.Preview = model
