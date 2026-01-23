@@ -788,7 +788,7 @@
     <section class="section reveal" id="projects">
       <div class="section-head">
         <div>
-          <h2>Featured scripts/h2>
+         <h2>Featured scripts</h2>
           <p class="lead">Each card is the overview :)</p>
         </div>
       </div>
@@ -1768,27 +1768,6 @@ function NetGuard:CreateEvent(name, schema, handler, opts)
 end
 
 return NetGuard'
-
-function Placement:SetPreview(model)
-  self.Preview = model
-end
-
-function Placement:SetValidity(isValid)
-  self.IsValid = isValid
-  if isValid then
-    self:ApplyHighlight("Valid")
-  else
-    self:ApplyHighlight("Invalid")
-  end
-end
-
-function Placement:Place()
-  if not self.IsValid then return false end
-  self:CommitPlacement()
-  return true
-end
-
-return Placement`
       }
     ]
 
