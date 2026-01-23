@@ -6,203 +6,467 @@
   <meta name="color-scheme" content="dark light" />
   <title>Portfolio</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-  
   <style>
     :root{
-      --bg0:#070A12;
-      --bg1:#0B1020;
-      --card:#0E1630CC;
-      --border:#2B3A75;
-      --text:#EAF0FF;
-      --muted:#A7B3D6;
-      --muted2:#7E8AB0;
-      --accent:#7C5CFF;
-      --accent2:#29D3FF;
-      --good:#5CFF9A;
-      --warn:#FFB84D;
-      --shadow: 0 16px 55px rgba(0,0,0,.45);
-      --radius:18px;
-      --radius2:26px;
+      --sans: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      --sans: ui-Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+
+      /* Dark (default) - grey, modern */
+      --bg0:#07080A;
+      --bg1:#0C0F14;
+      --bg2:#0F141B;
+      --card: rgba(18, 22, 28, .72);
+      --card2: rgba(18, 22, 28, .52);
+      --border: rgba(255,255,255,.10);
+      --border2: rgba(255,255,255,.14);
+
+      --text:#EEF1F6;
+      --muted:#A9B0BC;
+      --muted2:#7F8897;
+
+      --accent:#9AA4B2;     /* neutral accent */
+      --accent2:#D6DEE8;    /* highlight */
+      --spark:#7AA2FF;      /* subtle tech color */
+      --spark2:#39D5FF;     /* secondary tech color */
+
+      --good:#62FFB0;
+      --warn:#FFCD6A;
+
+      --radius: 18px;
+      --radius2: 26px;
+      --shadow: 0 24px 90px rgba(0,0,0,.55);
+      --shadow2: 0 14px 40px rgba(0,0,0,.35);
+
+      --grid: rgba(255,255,255,.055);
+      --noiseOpacity: .055;
+      --shineOpacity: .15;
+
+      --container: 1120px;
+
+      --ease: cubic-bezier(.2,.8,.2,1);
+      --ease2: cubic-bezier(.16,1,.3,1);
+    }
+
+    /* Light theme (toggle) */
+    [data-theme="light"]{
+      --bg0:#F6F7F9;
+      --bg1:#ECEFF3;
+      --bg2:#E6EAF0;
+      --card: rgba(255,255,255,.78);
+      --card2: rgba(255,255,255,.62);
+      --border: rgba(15,20,27,.10);
+      --border2: rgba(15,20,27,.14);
+
+      --text:#10131A;
+      --muted:#364053;
+      --muted2:#5C6679;
+
+      --grid: rgba(16,19,26,.06);
+      --noiseOpacity: .06;
+      --shineOpacity: .10;
+
+      --shadow: 0 30px 100px rgba(0,0,0,.15);
+      --shadow2: 0 14px 40px rgba(0,0,0,.10);
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
+    html{scroll-behavior:smooth}
     body{
       margin:0;
       font-family:var(--sans);
       color:var(--text);
       background:
-        radial-gradient(1200px 900px at 15% -10%, rgba(124,92,255,.35), transparent 55%),
-        radial-gradient(900px 700px at 90% 10%, rgba(41,211,255,.20), transparent 55%),
-        radial-gradient(800px 700px at 65% 115%, rgba(92,255,154,.16), transparent 55%),
+        radial-gradient(1200px 900px at 18% -15%, rgba(122,162,255,.10), transparent 60%),
+        radial-gradient(900px 700px at 92% 8%, rgba(57,213,255,.08), transparent 60%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     a{color:inherit;text-decoration:none}
     img,video{max-width:100%;display:block}
 
-    .wrap{max-width:1120px;margin:0 auto;padding:26px 18px 60px}
+    /* Background layers (grid/noise/blobs) */
+    .bg{
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index:-1;
+      overflow:hidden;
+    }
+    .bg .grid{
+      position:absolute; inset:-2px;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 52px 52px;
+      transform: translateZ(0);
+      mask-image: radial-gradient(70% 55% at 50% 35%, rgba(0,0,0,1), transparent 75%);
+      opacity: .85;
+    }
+    .bg .noise{
+      position:absolute; inset:-2px;
+      opacity: var(--noiseOpacity);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+      mix-blend-mode: overlay;
+    }
+    .bg .blob{
+      position:absolute;
+      width: 720px; height: 720px;
+      border-radius: 999px;
+      filter: blur(42px);
+      opacity: .10;
+      transform: translate3d(0,0,0);
+      animation: float 14s var(--ease2) infinite;
+    }
+    .bg .blob.b1{
+      left:-180px; top:-220px;
+      background: radial-gradient(circle at 30% 30%, rgba(122,162,255,.9), transparent 65%);
+      animation-delay: -2s;
+    }
+    .bg .blob.b2{
+      right:-240px; top:-120px;
+      background: radial-gradient(circle at 35% 40%, rgba(57,213,255,.9), transparent 65%);
+      animation-delay: -6s;
+    }
+    .bg .blob.b3{
+      left: 18%; bottom:-340px;
+      width: 860px; height: 860px;
+      background: radial-gradient(circle at 40% 40%, rgba(214,222,232,.9), transparent 65%);
+      opacity: .06;
+      animation-delay: -9s;
+    }
+    @keyframes float{
+      0%, 100%{ transform: translate3d(0,0,0) scale(1); }
+      50%{ transform: translate3d(0,28px,0) scale(1.03); }
+    }
 
+    .wrap{max-width:var(--container);margin:0 auto;padding:22px 18px 72px}
+
+    /* Top nav */
+    .nav{
+      position:sticky; top:0;
+      z-index:20;
+      padding:14px 0 10px;
+      background: linear-gradient(180deg, rgba(0,0,0,.18), transparent);
+      backdrop-filter: blur(10px);
+    }
+    [data-theme="light"] .nav{
+      background: linear-gradient(180deg, rgba(255,255,255,.65), transparent);
+    }
+    .nav-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 12px;
+      border-radius: 18px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.10);
+    }
+    [data-theme="light"] .nav-inner{ background: rgba(255,255,255,.55); }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:950;
+      letter-spacing:.2px;
+    }
+    .brand .mark{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      border:1px solid var(--border2);
+      background:
+        radial-gradient(14px 14px at 25% 30%, rgba(255,255,255,.60), transparent 60%),
+        radial-gradient(220px 160px at 30% 20%, rgba(122,162,255,.32), transparent 60%),
+        radial-gradient(220px 160px at 70% 30%, rgba(57,213,255,.20), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10));
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    }
+    .nav-links{
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+      color:var(--muted);
+      font-weight:850;
+    }
+    .nav-links a{
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid transparent;
+      transition: transform .25s var(--ease), background .25s var(--ease), border-color .25s var(--ease);
+    }
+    .nav-links a:hover{
+      background: rgba(255,255,255,.06);
+      border-color: var(--border);
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+    [data-theme="light"] .nav-links a:hover{ background: rgba(0,0,0,.04); }
+
+    /* Day/Night toggle (inspired by your snippet) */
+    .day-night{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    .day-night input{ display:none; }
+    .day-night .toggle{
+      width: 56px; height: 32px;
+      border-radius: 999px;
+      border:1px solid var(--border2);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.10));
+      position:relative;
+      box-shadow: 0 12px 30px rgba(0,0,0,.22);
+      cursor:pointer;
+      transition: background .25s var(--ease), border-color .25s var(--ease);
+    }
+    .day-night .toggle::before{
+      content:"";
+      position:absolute;
+      top:4px; left:4px;
+      width:24px; height:24px;
+      border-radius: 999px;
+      background:
+        radial-gradient(12px 12px at 35% 35%, rgba(255,255,255,.9), rgba(255,255,255,.30)),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.18));
+      box-shadow: 0 10px 18px rgba(0,0,0,.25);
+      transition: transform .30s var(--ease2);
+    }
+    .day-night input:checked + .toggle::before{ transform: translateX(24px); }
+    .day-night .label{
+      font-weight:900;
+      color: var(--muted);
+      letter-spacing:.2px;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    /* Buttons */
     .btn{
       display:inline-flex; align-items:center; justify-content:center;
       gap:10px;
       padding:10px 14px;
       border-radius:14px;
-      border:1px solid rgba(43,58,117,.65);
-      background: rgba(14,22,48,.48);
-      box-shadow: 0 10px 22px rgba(0,0,0,.24);
-      font-weight:800;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 12px 26px rgba(0,0,0,.18);
+      font-weight:900;
       color:var(--text);
       cursor:pointer;
       user-select:none;
+      transition: transform .22s var(--ease), background .22s var(--ease), border-color .22s var(--ease);
     }
+    [data-theme="light"] .btn{ background: rgba(0,0,0,.04); box-shadow: 0 12px 26px rgba(0,0,0,.08); }
     .btn:hover{
-      border-color: rgba(124,92,255,.65);
-      background: rgba(14,22,48,.65);
+      border-color: var(--border2);
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.08);
     }
+    [data-theme="light"] .btn:hover{ background: rgba(0,0,0,.06); }
     .btn.primary{
-      border-color: rgba(124,92,255,.85);
-      background: linear-gradient(135deg, rgba(124,92,255,.75), rgba(41,211,255,.32));
+      border-color: rgba(255,255,255,.14);
+      background:
+        radial-gradient(240px 180px at 15% 20%, rgba(122,162,255,.22), transparent 55%),
+        radial-gradient(240px 180px at 80% 30%, rgba(57,213,255,.16), transparent 55%),
+        rgba(255,255,255,.05);
     }
     .btn.primary:hover{
-      background: linear-gradient(135deg, rgba(124,92,255,.85), rgba(41,211,255,.42));
+      background:
+        radial-gradient(260px 200px at 15% 20%, rgba(122,162,255,.28), transparent 58%),
+        radial-gradient(260px 200px at 80% 30%, rgba(57,213,255,.20), transparent 58%),
+        rgba(255,255,255,.08);
     }
-    .btn.small{padding:8px 12px;border-radius:12px;font-weight:850}
-    .btn.ghost{background: rgba(7,10,18,.30);}
+    .btn.small{padding:8px 12px;border-radius:12px;font-weight:950}
+    .btn.ghost{background: transparent; box-shadow: none;}
 
+    /* Pills */
     .pill{
-      display:inline-flex; align-items:center; gap:8px;
+      display:inline-flex; align-items:center; gap:10px;
       padding:8px 12px;
       border-radius:999px;
-      border:1px solid rgba(43,58,117,.55);
-      background: rgba(14,22,48,.38);
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
       color:var(--muted);
-      font-weight:800;
+      font-weight:900;
       width:max-content;
     }
+    [data-theme="light"] .pill{ background: rgba(0,0,0,.03); }
     .dot{
       width:8px;height:8px;border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(124,92,255,.9));
-      box-shadow: 0 0 0 4px rgba(124,92,255,.18);
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(154,164,178,.9));
+      box-shadow: 0 0 0 4px rgba(154,164,178,.18);
     }
 
+    /* Hero */
     .hero{
-      padding:10px 0 14px;
+      padding:14px 0 12px;
       display:grid;
       grid-template-columns: 1.15fr .85fr;
-      gap:22px;
+      gap:16px;
       align-items:stretch;
     }
+
     .panel{
       border-radius: var(--radius2);
-      border:1px solid rgba(43,58,117,.60);
-      background: linear-gradient(180deg, rgba(14,22,48,.65), rgba(14,22,48,.28));
-      box-shadow: var(--shadow);
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      box-shadow: var(--shadow2);
       overflow:hidden;
       position:relative;
+      transform: translateZ(0);
     }
     .panel::before{
       content:"";
       position:absolute; inset:-2px;
       background:
-        radial-gradient(450px 250px at 10% 0%, rgba(124,92,255,.22), transparent 55%),
-        radial-gradient(420px 240px at 80% 20%, rgba(41,211,255,.14), transparent 55%);
+        radial-gradient(540px 260px at 10% 0%, rgba(255,255,255,.08), transparent 60%),
+        radial-gradient(380px 240px at 80% 20%, rgba(57,213,255,.08), transparent 60%),
+        radial-gradient(420px 260px at 30% 90%, rgba(122,162,255,.06), transparent 60%);
       pointer-events:none;
     }
+    .panel::after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        linear-gradient(90deg, transparent, rgba(255,255,255,var(--shineOpacity)), transparent);
+      transform: translateX(-70%);
+      animation: panelShine 6.5s var(--ease2) infinite;
+      opacity:.55;
+      pointer-events:none;
+      mask-image: radial-gradient(70% 60% at 50% 30%, rgba(0,0,0,1), transparent 70%);
+    }
+    @keyframes panelShine{
+      0%, 40%{ transform: translateX(-70%); opacity:0; }
+      48%{ opacity:.85; }
+      72%{ transform: translateX(70%); opacity:0; }
+      100%{ transform: translateX(70%); opacity:0; }
+    }
 
-    .hero-left{padding:24px 22px 22px}
+    .hero-left{padding:22px 20px 18px}
     .hero-title{
-      font-size: clamp(30px, 4.4vw, 50px);
-      margin:10px 0 10px;
-      line-height:1.05;
-      letter-spacing:-.8px;
+      font-size: clamp(30px, 4.6vw, 52px);
+      margin:12px 0 10px;
+      line-height:1.04;
+      letter-spacing:-.9px;
     }
     .hero-sub{
       color:var(--muted);
       font-size: 16px;
-      line-height:1.55;
+      line-height:1.62;
       margin:0 0 16px;
-      max-width:64ch;
+      max-width:70ch;
       font-weight:650;
     }
-    .badges{display:flex; flex-wrap:wrap; gap:10px; margin:12px 0 18px}
+    .badges{display:flex; flex-wrap:wrap; gap:10px; margin:12px 0 16px}
 
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
-    .stat{
-      padding:14px 14px;
-      border-radius: 18px;
-      border:1px solid rgba(43,58,117,.55);
-      background: rgba(7,10,18,.35);
-    }
-    .stat .k{color:var(--muted2); font-weight:900; font-size:12px; letter-spacing:.4px; text-transform:uppercase}
-    .stat .v{font-weight:900; font-size:18px; margin-top:8px}
+    .hero-cta{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
 
     .hero-right{display:flex; flex-direction:column;}
     .profile{
-      padding:18px 18px 16px;
+      padding:16px 16px 14px;
       height:100%;
       display:flex;
       flex-direction:column;
       gap:12px;
+      position:relative;
     }
+
+    /* Graphic header visual */
     .avatar{
       width:100%;
       aspect-ratio: 16/10;
       border-radius: 22px;
-      border:1px solid rgba(255,255,255,.12);
+      border:1px solid var(--border);
       background:
-        radial-gradient(16px 16px at 25% 35%, rgba(255,255,255,.78), transparent 60%),
-        radial-gradient(380px 240px at 25% 20%, rgba(124,92,255,.40), transparent 60%),
-        radial-gradient(340px 220px at 80% 30%, rgba(41,211,255,.28), transparent 60%),
-        linear-gradient(135deg, rgba(14,22,48,.65), rgba(7,10,18,.65));
-      box-shadow: 0 12px 34px rgba(0,0,0,.35);
+        radial-gradient(18px 18px at 24% 38%, rgba(255,255,255,.55), transparent 60%),
+        radial-gradient(420px 260px at 24% 20%, rgba(122,162,255,.22), transparent 60%),
+        radial-gradient(380px 250px at 80% 30%, rgba(57,213,255,.16), transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,.05), rgba(0,0,0,.10));
+      box-shadow: 0 16px 40px rgba(0,0,0,.25);
       overflow:hidden;
       position:relative;
     }
-    .avatar::after{
-      content:"";
-      position:absolute; inset:-1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
-      transform: translateX(-60%);
-      animation: shine 4.2s ease-in-out infinite;
+    .avatar .lines{
+      position:absolute; inset:-2px;
+      background:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 26px 26px;
+      opacity:.8;
+      transform: rotate(-8deg) scale(1.15);
+      mask-image: radial-gradient(60% 60% at 50% 45%, rgba(0,0,0,1), transparent 75%);
+    }
+    .avatar .ring{
+      position:absolute;
+      inset:auto;
+      width: 380px; height: 380px;
+      left:-140px; bottom:-220px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.06),
+        0 20px 55px rgba(0,0,0,.25);
+      background:
+        radial-gradient(circle at 35% 35%, rgba(255,255,255,.10), transparent 65%),
+        radial-gradient(circle at 60% 60%, rgba(57,213,255,.12), transparent 60%);
+      filter: blur(.0px);
+      animation: ring 10s var(--ease2) infinite;
       opacity:.9;
+    }
+    @keyframes ring{
+      0%, 100%{ transform: translate3d(0,0,0) rotate(0deg); }
+      50%{ transform: translate3d(18px,-10px,0) rotate(10deg); }
+    }
+    .avatar .scan{
+      content:"";
+      position:absolute; inset:-2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+      transform: translateX(-65%);
+      animation: scan 4.8s var(--ease2) infinite;
+      opacity:.7;
       pointer-events:none;
     }
-    @keyframes shine{
-      0%, 35%{transform:translateX(-60%); opacity:0}
-      45%{opacity:.85}
-      70%{transform:translateX(60%); opacity:0}
-      100%{transform:translateX(60%); opacity:0}
+    @keyframes scan{
+      0%, 35%{ transform:translateX(-65%); opacity:0; }
+      45%{ opacity:.8; }
+      70%{ transform:translateX(65%); opacity:0; }
+      100%{ transform:translateX(65%); opacity:0; }
     }
 
     .quick{
       display:flex; flex-wrap:wrap; gap:10px;
       color:var(--muted);
-      font-weight:800;
+      font-weight:900;
     }
     .quick a{
       padding:10px 12px;
       border-radius:14px;
-      border:1px solid rgba(43,58,117,.55);
-      background: rgba(7,10,18,.34);
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      transition: transform .22s var(--ease), background .22s var(--ease), border-color .22s var(--ease);
     }
+    [data-theme="light"] .quick a{ background: rgba(0,0,0,.03); }
     .quick a:hover{
-      border-color: rgba(41,211,255,.55);
+      border-color: var(--border2);
+      background: rgba(255,255,255,.07);
+      transform: translateY(-1px);
       color:var(--text);
     }
+    [data-theme="light"] .quick a:hover{ background: rgba(0,0,0,.05); }
 
-    .section{padding:18px 0 4px; margin-top:8px;}
+    .muted-block{
+      color:var(--muted);
+      font-weight:700;
+      line-height:1.65
+    }
+
+    /* Sections */
+    .section{padding:16px 0 4px; margin-top:10px;}
     .section-head{
       display:flex; align-items:end; justify-content:space-between; gap:10px;
       margin:10px 2px 12px;
@@ -211,42 +475,137 @@
     .section p.lead{
       margin:0;
       color:var(--muted);
-      max-width:70ch;
-      line-height:1.55;
+      max-width:72ch;
+      line-height:1.65;
       font-weight:650;
     }
 
+    /* Cards grid */
     .cards{
       display:grid;
       grid-template-columns: repeat(12, 1fr);
       gap:14px;
     }
+
+    /* Apple-ish clean card + your “tiles/shine/lines” idea */
     .card{
       grid-column: span 6;
       border-radius: var(--radius);
-      border:1px solid rgba(43,58,117,.55);
-      background: linear-gradient(180deg, rgba(14,22,48,.60), rgba(7,10,18,.25));
-      box-shadow: 0 10px 35px rgba(0,0,0,.28);
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.10));
+      box-shadow: var(--shadow2);
       overflow:hidden;
       position:relative;
+      transform: translateZ(0);
+      transition: transform .28s var(--ease), border-color .28s var(--ease), box-shadow .28s var(--ease);
     }
-    .card::before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(320px 220px at 20% 0%, rgba(124,92,255,.18), transparent 60%),
-        radial-gradient(280px 220px at 85% 20%, rgba(41,211,255,.10), transparent 60%);
-      pointer-events:none;
+    [data-theme="light"] .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.55));
     }
+    .card:hover{
+      transform: translateY(-4px);
+      border-color: var(--border2);
+      box-shadow: var(--shadow);
+    }
+
     .card-inner{position:relative;padding:16px 16px 14px}
     .card-top{
       display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
       margin-bottom:10px;
     }
     .card h3{margin:0;font-size:16px;letter-spacing:-.2px;}
-    .card p{margin:0;color:var(--muted);line-height:1.55;font-weight:650;}
+    .card p{margin:0;color:var(--muted);line-height:1.65;font-weight:650;}
+
     .card-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
 
+    /* Card graphic background (tiles/lines) */
+    .card .shine{
+      position:absolute;
+      inset:-2px;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.16), transparent 70%);
+      transform: translateX(-60%) rotate(2deg);
+      opacity:0;
+      transition: opacity .28s var(--ease);
+      pointer-events:none;
+      mix-blend-mode: overlay;
+    }
+    .card:hover .shine{
+      opacity:.7;
+      animation: shineMove 1.2s var(--ease) both;
+    }
+    @keyframes shineMove{
+      from{ transform: translateX(-60%) rotate(2deg); }
+      to{ transform: translateX(60%) rotate(2deg); }
+    }
+
+    .card .background{
+      position:absolute; inset:0;
+      opacity:.75;
+      pointer-events:none;
+      mask-image: radial-gradient(70% 60% at 45% 15%, rgba(0,0,0,1), transparent 80%);
+    }
+
+    .tiles{
+      position:absolute;
+      inset:0;
+      display:grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap:8px;
+      padding:14px;
+      opacity:.55;
+      transform: translateZ(0);
+    }
+    .tile{
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,.10), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.08));
+      transition: transform .38s var(--ease), opacity .38s var(--ease), border-color .38s var(--ease);
+      opacity:.55;
+    }
+    [data-theme="light"] .tile{
+      border: 1px solid rgba(0,0,0,.06);
+      background: linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,.01));
+    }
+
+    .card:hover .tile{
+      opacity:.9;
+      border-color: rgba(255,255,255,.14);
+    }
+
+    .tile.t1{ grid-column: 1 / span 2; grid-row: 1; }
+    .tile.t2{ grid-column: 3 / span 2; grid-row: 1; }
+    .tile.t3{ grid-column: 5 / span 2; grid-row: 1; }
+    .tile.t4{ grid-column: 2 / span 2; grid-row: 2; }
+    .tile.t5{ grid-column: 4 / span 2; grid-row: 2; }
+    .tile.t6{ grid-column: 1 / span 3; grid-row: 3; }
+    .tile.t7{ grid-column: 4 / span 3; grid-row: 3; }
+    .tile.t8{ grid-column: 1 / span 2; grid-row: 4; }
+    .tile.t9{ grid-column: 3 / span 2; grid-row: 4; }
+    .tile.t10{grid-column: 5 / span 2; grid-row: 4; }
+
+    .card:hover .tile.t2{ transform: translate3d(0,-2px,0); }
+    .card:hover .tile.t5{ transform: translate3d(0,2px,0); }
+    .card:hover .tile.t7{ transform: translate3d(0,-3px,0); }
+
+    .line{
+      position:absolute;
+      left:-20%;
+      width:140%;
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+      opacity:.35;
+      transform: translateZ(0);
+      transition: opacity .28s var(--ease);
+    }
+    .line.l1{ top: 26%; }
+    .line.l2{ top: 54%; }
+    .line.l3{ top: 78%; }
+    .card:hover .line{ opacity:.70; }
+
+    /* Media */
     .media-grid{
       display:grid;
       grid-template-columns: repeat(12, 1fr);
@@ -255,75 +614,99 @@
     .media{
       grid-column: span 4;
       border-radius: var(--radius);
-      border:1px solid rgba(43,58,117,.55);
-      background: rgba(14,22,48,.38);
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--card), var(--card2));
       overflow:hidden;
-      box-shadow: 0 12px 40px rgba(0,0,0,.25);
+      box-shadow: var(--shadow2);
+      transition: transform .28s var(--ease), border-color .28s var(--ease);
     }
-    .media .cap{padding:12px 12px 13px;color:var(--muted);font-weight:700;line-height:1.4;}
+    .media:hover{
+      transform: translateY(-3px);
+      border-color: var(--border2);
+    }
+    .media .cap{padding:12px 12px 13px;color:var(--muted);font-weight:750;line-height:1.5;}
     .media .frame{
       aspect-ratio: 16/10;
-      background: rgba(7,10,18,.30);
-      border-bottom:1px solid rgba(43,58,117,.40);
+      background: rgba(0,0,0,.08);
+      border-bottom:1px solid var(--border);
       display:flex; align-items:center; justify-content:center;
       overflow:hidden;
     }
+    [data-theme="light"] .media .frame{ background: rgba(0,0,0,.03); }
 
+    /* Footer */
     .footer{
       margin-top:26px;
       padding:18px 0 0;
       color:var(--muted2);
-      border-top: 1px solid rgba(43,58,117,.35);
+      border-top: 1px solid var(--border);
       display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
-      font-weight:700;
+      font-weight:800;
     }
 
+    /* Modal */
     .modal-backdrop{
       position:fixed; inset:0;
       display:none;
       align-items:flex-end;
       justify-content:center;
       padding:18px;
-      background: rgba(0,0,0,.55);
-      backdrop-filter: blur(10px);
+      background: rgba(0,0,0,.58);
+      backdrop-filter: blur(12px);
       z-index:70;
     }
+    [data-theme="light"] .modal-backdrop{ background: rgba(0,0,0,.25); }
     .modal-backdrop.show{display:flex}
     .modal{
       width:min(980px, 100%);
       max-height: calc(100vh - 36px);
       overflow:hidden;
       border-radius: 22px;
-      border:1px solid rgba(43,58,117,.65);
-      background: linear-gradient(180deg, rgba(14,22,48,.92), rgba(7,10,18,.86));
-      box-shadow: 0 24px 80px rgba(0,0,0,.55);
+      border:1px solid var(--border2);
+      background: linear-gradient(180deg, rgba(18,22,28,.92), rgba(10,12,15,.88));
+      box-shadow: 0 34px 120px rgba(0,0,0,.65);
       display:flex;
       flex-direction:column;
+      transform: translateY(14px);
+      opacity:0;
+      animation: modalIn .22s var(--ease) forwards;
+    }
+    [data-theme="light"] .modal{
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(245,246,248,.86));
+      box-shadow: 0 34px 120px rgba(0,0,0,.22);
+    }
+    @keyframes modalIn{
+      to{ transform: translateY(0); opacity:1; }
     }
     .modal-head{
       display:flex; align-items:center; justify-content:space-between;
       padding:14px 14px 12px;
-      border-bottom:1px solid rgba(43,58,117,.50);
+      border-bottom:1px solid var(--border);
       gap:10px;
     }
     .modal-title{display:flex;flex-direction:column;gap:2px;}
     .modal-title b{font-size:14px;letter-spacing:.1px;}
-    .modal-title span{font-size:12px;color:var(--muted2);font-weight:800;}
+    .modal-title span{font-size:12px;color:var(--muted2);font-weight:850;}
     .modal-body{padding:14px;overflow:auto;}
     .modal-close{
-      border:1px solid rgba(43,58,117,.65);
-      background: rgba(7,10,18,.35);
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
       border-radius: 14px;
       padding:10px 12px;
-      font-weight:900;
+      font-weight:950;
       cursor:pointer;
       color:var(--text);
+      transition: transform .22s var(--ease), background .22s var(--ease), border-color .22s var(--ease);
     }
+    [data-theme="light"] .modal-close{ background: rgba(0,0,0,.04); }
     .modal-close:hover{
-      border-color: rgba(124,92,255,.70);
-      background: rgba(7,10,18,.45);
+      border-color: var(--border2);
+      background: rgba(255,255,255,.10);
+      transform: translateY(-1px);
     }
+    [data-theme="light"] .modal-close:hover{ background: rgba(0,0,0,.06); }
 
+    /* Code area */
     .code-toolbar{
       display:flex;
       flex-wrap:wrap;
@@ -339,32 +722,34 @@
       gap:10px;
       padding:10px 12px;
       border-radius: 14px;
-      border:1px solid rgba(43,58,117,.55);
-      background: rgba(7,10,18,.30);
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
     }
+    [data-theme="light"] .field{ background: rgba(0,0,0,.03); }
     .field input{
       border:0;
       outline:none;
       background:transparent;
       color:var(--text);
       width:min(340px, 58vw);
-      font-weight:800;
+      font-weight:850;
       letter-spacing:.1px;
     }
-    .hint{color:var(--muted2);font-weight:800;font-size:12px;}
+    .hint{color:var(--muted2);font-weight:850;font-size:12px;}
     .codebox{
       border-radius: 18px;
-      border:1px solid rgba(43,58,117,.55);
-      background: rgba(0,0,0,.35);
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.34);
       overflow:hidden;
     }
+    [data-theme="light"] .codebox{ background: rgba(0,0,0,.04); }
     pre{
       margin:0;
       padding:14px;
       font-family:var(--mono);
       font-size:12px;
-      line-height:1.55;
-      color: #EAF0FF;
+      line-height:1.6;
+      color: var(--text);
       white-space:pre;
       overflow:auto;
       tab-size:2;
@@ -374,75 +759,137 @@
       font-size:12px;
       padding:3px 7px;
       border-radius: 10px;
-      border:1px solid rgba(43,58,117,.55);
-      background: rgba(7,10,18,.35);
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
       color: var(--muted);
-      font-weight:900;
+      font-weight:950;
+    }
+    [data-theme="light"] .kbd{ background: rgba(0,0,0,.03); }
+
+    /* Scroll reveal */
+    .reveal{
+      opacity:0;
+      transform: translateY(10px);
+      transition: opacity .55s var(--ease2), transform .55s var(--ease2);
+      will-change: opacity, transform;
+    }
+    .reveal.show{
+      opacity:1;
+      transform: translateY(0);
+    }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      .bg .blob, .panel::after, .avatar .ring, .avatar .scan{ animation: none !important; }
+      .card:hover{ transform:none }
+      .btn:hover{ transform:none }
+      .media:hover{ transform:none }
+      .reveal{ transition:none; opacity:1; transform:none }
+      .card:hover .shine{ animation:none }
     }
 
     @media (max-width: 980px){
       .hero{grid-template-columns: 1fr; gap:14px}
       .card{grid-column: span 12}
       .media{grid-column: span 6}
+      .nav{ position:static; backdrop-filter:none; }
     }
     @media (max-width: 640px){
       .media{grid-column: span 12}
       .field input{width: 52vw}
+      .nav-inner{ flex-wrap:wrap; justify-content:center; }
+      .nav-links{ justify-content:center; }
+      .day-night{ margin-left:auto; }
     }
   </style>
 </head>
 
 <body>
+  <div class="bg" aria-hidden="true">
+    <div class="grid"></div>
+    <div class="noise"></div>
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+  </div>
+
   <div class="wrap">
-    <section class="hero" id="top">
+    <header class="nav">
+      <div class="nav-inner">
+        <div class="brand">
+          <div class="mark" aria-hidden="true"></div>
+          <div>zrxckss0</div>
+        </div>
+
+        <nav class="nav-links">
+          <a href="#top">Top</a>
+          <a href="#projects">Projects</a>
+          <a href="#media">Media</a>
+        </nav>
+
+        <label class="day-night" title="Toggle theme">
+          <span class="label">Theme</span>
+          <input id="themeToggle" type="checkbox" />
+          <span class="toggle" aria-hidden="true"></span>
+        </label>
+      </div>
+    </header>
+
+    <section class="hero reveal" id="top">
       <div class="panel hero-left">
         <div style="position:relative">
           <div class="pill"><span class="dot"></span><span>Open to commissions</span></div>
 
-          <h1 class="hero-title">Just a programmer..</h1>
+          <h1 class="hero-title">Just a programmer.</h1>
 
           <p class="hero-sub">
-            I can work with LuaU libraries, learn your game’s networking fast, and keep my code clean and organized. I can build pretty much anything you need, and I’m comfortable using third-party systems too.
+            I work fast in LuaU, learn your networking + frameworks quickly, and keep code clean and scalable.
+            I build systems that feel stable in production (not just “works in Studio”).
           </p>
 
           <div class="badges">
-            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(41,211,255,.9))"></span><span>LuaU</span></div>
-            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(92,255,154,.9))"></span><span>Java (Built this site!)</span></div>
-            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,184,77,.95))"></span><span>UI/UX</span></div>
+            <div class="pill"><span class="dot"></span><span>LuaU</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(122,162,255,.95))"></span><span>RagePluginHook</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>UI Systems</span></div>
           </div>
 
-          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px">
+          <div class="hero-cta">
             <a class="btn primary" href="#projects">See projects</a>
-            <a class="btn ghost" href="#media">See media</a>
+            <a class="btn" href="#media">See media</a>
           </div>
         </div>
       </div>
 
       <div class="panel hero-right">
-        <div class="profile" style="position:relative">
-          <div class="avatar" aria-label="Header visual"></div>
+        <div class="profile">
+          <div class="avatar" aria-label="Header visual">
+            <div class="lines" aria-hidden="true"></div>
+            <div class="ring" aria-hidden="true"></div>
+            <div class="scan" aria-hidden="true"></div>
+          </div>
 
           <div class="quick">
             <a href="https://www.roblox.com/users/1759970364/profile" target="_blank" rel="noreferrer">Roblox</a>
-            <a href="https://www.roblox.com/communities/33733471/Money-Motivated#!/about" target="_blank" rel="noreferrer">South London Remastered: Contributor</a>
-            <a href="https://www.roblox.com/communities/3257451/Radiant-Design#!/about" rel="noreferrer">MONEYCALL: Contributor</a>
-            <a href="https://www.roblox.com/games/74202469190711/Project-Bending-2" target="_blank" rel="noreferrer">Project bending 2: Contributor (Made the Network when project just started)</a>
-            <a href="https://www.lcpdfr.com/downloads/gta5mods/scripts/53038-simplespeedhud-speedometer-cruise-control/?tab=comments#comment-375556" target="_blank" rel="noreferrer">LSPDFR PLUGIN (GTA 5)</a>
+            <a href="https://www.roblox.com/communities/33733471/Money-Motivated#!/about" target="_blank" rel="noreferrer">South London Remastered</a>
+            <a href="https://www.roblox.com/communities/3257451/Radiant-Design#!/about" target="_blank" rel="noreferrer">MONEYCALL</a>
+            <a href="https://www.roblox.com/games/74202469190711/Project-Bending-2" target="_blank" rel="noreferrer">Project Bending 2</a>
+            <a href="https://www.lcpdfr.com/downloads/gta5mods/scripts/53038-simplespeedhud-speedometer-cruise-control/?tab=comments#comment-375556" target="_blank" rel="noreferrer">LSPDFR Plugin</a>
           </div>
 
-          <div style="color:var(--muted); font-weight:750; line-height:1.55">
-            I’m 17. I’ve got 6 years of LuaU experience and about 2 years with Java. 
-            I’ve also made RagePluginHook (GTA) plugins, and I’ve worked with a FiveM product group before.
+          <div class="muted-block">
+            I’m 17. I’ve got 6 years of LuaU experience and about 2 years with Java.
+            I’ve also made RagePluginHook (GTA) plugins, and I’ve worked with FiveM product groups before.
           </div>
 
-          <div style="color:var(--muted); font-weight:900; letter-spacing:.1px">
+          <div style="color:var(--muted); font-weight:950; letter-spacing:.1px">
             Discord: <span style="color:var(--text); font-weight:950">ssisisisisisilent</span>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section" id="projects">
+    <section class="section reveal" id="projects">
       <div class="section-head">
         <div>
           <h2>Featured projects</h2>
@@ -454,33 +901,36 @@
       <div class="cards" id="projectCards"></div>
     </section>
 
-    <section class="section" id="media">
+    <section class="section reveal" id="media">
       <div class="section-head">
         <div>
           <h2>Media</h2>
           <p class="lead">Drop screenshots and short demo clips here.</p>
         </div>
-        <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(41,211,255,.9))"></span><span>Images & video</span></div>
+        <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>Images & video</span></div>
       </div>
 
       <div class="media-grid">
         <div class="media">
           <div class="frame">
-            <img src="media/demo1.png" alt="Demo screenshot 1" onerror="this.closest('.frame').innerHTML='<div style=&quot;color:var(--muted2);font-weight:850;padding:18px;text-align:center&quot;>Add media/demo1.png</div>'">
+            <img src="media/demo1.png" alt="Demo screenshot 1"
+              onerror="this.closest('.frame').innerHTML='<div style=&quot;color:var(--muted2);font-weight:900;padding:18px;text-align:center&quot;>Add media/demo1.png</div>'">
           </div>
           <div class="cap">Demo screenshot placeholder.</div>
         </div>
 
         <div class="media">
           <div class="frame">
-            <video src="media/demo1.mp4" controls muted playsinline onerror="this.closest('.frame').innerHTML='<div style=&quot;color:var(--muted2);font-weight:850;padding:18px;text-align:center&quot;>Add media/demo1.mp4</div>'"></video>
+            <video src="media/demo1.mp4" controls muted playsinline
+              onerror="this.closest('.frame').innerHTML='<div style=&quot;color:var(--muted2);font-weight:900;padding:18px;text-align:center&quot;>Add media/demo1.mp4</div>'"></video>
           </div>
           <div class="cap">Demo clip placeholder.</div>
         </div>
 
         <div class="media">
           <div class="frame">
-            <img src="media/demo2.png" alt="Demo screenshot 2" onerror="this.closest('.frame').innerHTML='<div style=&quot;color:var(--muted2);font-weight:850;padding:18px;text-align:center&quot;>Add media/demo2.png</div>'">
+            <img src="media/demo2.png" alt="Demo screenshot 2"
+              onerror="this.closest('.frame').innerHTML='<div style=&quot;color:var(--muted2);font-weight:900;padding:18px;text-align:center&quot;>Add media/demo2.png</div>'">
           </div>
           <div class="cap">Another screenshot placeholder.</div>
         </div>
@@ -492,6 +942,7 @@
       <div style="display:flex; gap:10px; flex-wrap:wrap">
         <a href="#projects">Projects</a>
         <a href="#media">Media</a>
+        <a href="#top">Top</a>
       </div>
     </div>
   </div>
@@ -524,16 +975,14 @@
         ],
         details: [
           "Built for real projects where you want signal, not spam.",
-          "Easy to drop in: tune thresholds via attributes, and optionally add a WebhookUrl StringValue."
+          "Drop-in: tune thresholds via settings + optional WebhookUrl StringValue."
         ],
         repo: "",
         demo: "",
         codeLanguage: "LuaU",
-        code: `-- (Logger code unchanged)
--- My standard logger module, useful for keeping clean consoles in prod. Includes discord webhook support
--- (rest of module here as you already pasted it)`
+        code: `-- My standard logger module, useful for keeping clean consoles in prod. Includes discord webhook support
+-- (paste your full module here for best look)`
       },
-
       {
         id: "k9suite",
         title: "K9 Control + Voice Command Suite",
@@ -546,16 +995,14 @@
           "Client command UI + server validation hooks"
         ],
         details: [
-          "Designed around real gameplay feel: snappy commands, clear mode boundaries, and safe transitions.",
-          "Easy to expand: add new commands without rewriting the whole script."
+          "Designed around gameplay feel: snappy commands, clear mode boundaries, safe transitions.",
+          "Easy to expand: add commands without rewriting the whole script."
         ],
         repo: "",
         demo: "",
         codeLanguage: "LuaU (overview)",
-        code: `-- Example skeleton (replace with your real K9 suite when you want)
--- Focus: state transitions + predictable follow distance + command routing`
+        code: `-- Paste your K9 suite code here when you want it shown in the modal.`
       },
-
       {
         id: "inventory",
         title: "Custom Inventory + Toolbar UI",
@@ -564,20 +1011,18 @@
         highlights: [
           "Drag & drop between slots and panels",
           "Quickbar syncing + selection logic",
-          "Keyboard + controller support (with clean focus handling)",
-          "Built to be extended: stacks, categories, filters"
+          "Keyboard + controller support (clean focus handling)",
+          "Built to extend: stacks, categories, filters"
         ],
         details: [
-          "The goal was ‘game-quality UI’ — smooth interactions and consistent behavior.",
-          "Made to scale: adding new item types doesn’t break the UI flow."
+          "Goal: ‘game-quality UI’ — smooth interactions and consistent behavior.",
+          "Scales well: new item types don’t break the flow."
         ],
         repo: "",
         demo: "",
         codeLanguage: "LuaU (overview)",
-        code: `-- Example skeleton (replace with your real inventory code when ready)
--- Focus: input routing + UI state + slot operations`
+        code: `-- Paste your inventory code here when ready.`
       },
-
       {
         id: "placement",
         title: "Grid Placement System",
@@ -590,8 +1035,8 @@
           "Mobile-friendly delete confirmation patterns"
         ],
         details: [
-          "Built to avoid the usual placement pain: accidental deletes, broken cancel, and inconsistent edit state.",
-          "Structured for future expansion (multi-session support, more rules, more tools)."
+          "Avoids common placement pain: accidental deletes, broken cancel, inconsistent edit state.",
+          "Structured for expansion (multi-session support, more rules, more tools)."
         ],
         repo: "",
         demo: "",
@@ -663,11 +1108,11 @@ return Placement`
 
     function buildDetails(project){
       const items = project.highlights
-        .map(x => `<li style="margin:6px 0; color:var(--muted); font-weight:700; line-height:1.5">${escapeHtml(x)}</li>`)
+        .map(x => `<li style="margin:6px 0; color:var(--muted); font-weight:750; line-height:1.6">${escapeHtml(x)}</li>`)
         .join("")
 
       const details = (project.details || [])
-        .map(p => `<div style="color:var(--muted); font-weight:700; line-height:1.6; margin:10px 0">${escapeHtml(p)}</div>`)
+        .map(p => `<div style="color:var(--muted); font-weight:750; line-height:1.7; margin:10px 0">${escapeHtml(p)}</div>`)
         .join("")
 
       const links = [
@@ -678,7 +1123,7 @@ return Placement`
       return `
         <div class="pill"><span class="dot"></span><span>${escapeHtml(project.codeLanguage || "Project")}</span></div>
 
-        <div style="margin-top:10px; color:var(--muted); font-weight:750; line-height:1.6">
+        <div style="margin-top:10px; color:var(--muted); font-weight:800; line-height:1.75">
           ${escapeHtml(project.summary)}
         </div>
 
@@ -733,7 +1178,7 @@ return Placement`
           <pre id="${codeId}" data-raw="${escapeHtml(raw)}">${safe}</pre>
         </div>
 
-        <div style="margin-top:10px; color:var(--muted2); font-weight:800; display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between">
+        <div style="margin-top:10px; color:var(--muted2); font-weight:900; display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between">
           <div>Search highlights matches in-view.</div>
           <div>Shortcut: <span class="kbd">Esc</span></div>
         </div>
@@ -743,12 +1188,25 @@ return Placement`
     function renderCards(){
       elCards.innerHTML = PROJECTS.map(p => {
         return `
-          <article class="card">
+          <article class="card reveal">
+            <div class="background" aria-hidden="true">
+              <div class="tiles">
+                <div class="tile t1"></div><div class="tile t2"></div><div class="tile t3"></div>
+                <div class="tile t4"></div><div class="tile t5"></div>
+                <div class="tile t6"></div><div class="tile t7"></div>
+                <div class="tile t8"></div><div class="tile t9"></div><div class="tile t10"></div>
+              </div>
+              <div class="line l1"></div>
+              <div class="line l2"></div>
+              <div class="line l3"></div>
+            </div>
+            <div class="shine" aria-hidden="true"></div>
+
             <div class="card-inner">
               <div class="card-top">
                 <div>
                   <h3>${escapeHtml(p.title)}</h3>
-                  <div style="color:var(--muted2); font-weight:850; margin-top:6px">${escapeHtml(p.subtitle)}</div>
+                  <div style="color:var(--muted2); font-weight:950; margin-top:6px">${escapeHtml(p.subtitle)}</div>
                 </div>
                 <div class="pill"><span class="dot"></span><span>${escapeHtml(p.codeLanguage || "Project")}</span></div>
               </div>
@@ -757,7 +1215,7 @@ return Placement`
 
               <div class="card-actions">
                 <button class="btn small primary" type="button" data-open-info="${escapeHtml(p.id)}">Open highlights</button>
-                <button class="btn small ghost" type="button" data-open-code="${escapeHtml(p.id)}">Code</button>
+                <button class="btn small" type="button" data-open-code="${escapeHtml(p.id)}">Code</button>
               </div>
             </div>
           </article>
@@ -808,9 +1266,6 @@ return Placement`
     }
 
     function bindCodeFeatures(projectId){
-      const p = getProject(projectId)
-      if (!p) return
-
       const pre = document.getElementById(`code_${projectId}`)
       const q = document.getElementById(`q_${projectId}`)
       if (!pre || !q) return
@@ -825,7 +1280,7 @@ return Placement`
         const safeNeedle = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
         const re = new RegExp(safeNeedle, "gi")
         const parts = escapeHtml(raw).replace(re, (m) =>
-          `<mark style="background:rgba(41,211,255,.18); color:var(--text); border:1px solid rgba(41,211,255,.25); padding:0 2px; border-radius:6px">${m}</mark>`
+          `<mark style="background:rgba(57,213,255,.18); color:var(--text); border:1px solid rgba(57,213,255,.22); padding:0 2px; border-radius:6px">${m}</mark>`
         )
         pre.innerHTML = parts
       }
@@ -834,8 +1289,66 @@ return Placement`
       q.focus()
     }
 
+    /* Theme toggle (persist) */
+    const toggle = document.getElementById("themeToggle")
+    const root = document.documentElement
+
+    function applyTheme(theme){
+      if (theme === "light"){
+        root.setAttribute("data-theme", "light")
+        toggle.checked = true
+      }else{
+        root.removeAttribute("data-theme")
+        toggle.checked = false
+      }
+    }
+
+    const saved = localStorage.getItem("theme")
+    if (saved === "light" || saved === "dark") applyTheme(saved)
+    else applyTheme("dark")
+
+    toggle.addEventListener("change", () => {
+      const theme = toggle.checked ? "light" : "dark"
+      localStorage.setItem("theme", theme)
+      applyTheme(theme)
+    })
+
+    /* Scroll reveal */
+    function setupReveal(){
+      const els = [...document.querySelectorAll(".reveal")]
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries){
+          if (e.isIntersecting){
+            e.target.classList.add("show")
+            io.unobserve(e.target)
+          }
+        }
+      }, { threshold: 0.12 })
+
+      els.forEach(el => io.observe(el))
+    }
+
+    /* Subtle parallax grid movement */
+    function setupParallax(){
+      const grid = document.querySelector(".bg .grid")
+      if (!grid) return
+
+      let raf = 0
+      window.addEventListener("mousemove", (ev) => {
+        if (raf) return
+        raf = requestAnimationFrame(() => {
+          raf = 0
+          const x = (ev.clientX / window.innerWidth - 0.5) * 10
+          const y = (ev.clientY / window.innerHeight - 0.5) * 10
+          grid.style.transform = `translate3d(${x}px, ${y}px, 0)`
+        })
+      }, { passive:true })
+    }
+
     renderCards()
     attachHandlers()
+    setupReveal()
+    setupParallax()
     document.getElementById("year").textContent = String(new Date().getFullYear())
   </script>
 </body>
