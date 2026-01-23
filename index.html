@@ -693,27 +693,17 @@
     }
     .theme-fab input:checked + .toggle::before{ transform: translateX(24px); }
     .view-counter{
-      position:fixed;
-      right:18px;
-      bottom:70px;
-      z-index:30;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius: 999px;
-      border:1px solid var(--border2);
-      background: rgba(0,0,0,.18);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 12px 38px rgba(0,0,0,.24);
-      font-weight:900;
-      color:var(--muted);
-      letter-spacing:.2px;
-    }
-    [data-theme="light"] .view-counter{
-      background: rgba(255,255,255,.65);
-      box-shadow: 0 12px 38px rgba(0,0,0,.10);
-    }
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
+  box-shadow: none;
+  padding: 0;
+}
+[data-theme="light"] .view-counter{
+  background: transparent;
+  box-shadow: none;
+}
+
     .view-counter .eye{font-size:14px}
 
     @media (prefers-reduced-motion: reduce){
@@ -774,18 +764,12 @@
           </p>
 
           <div class="badges">
-            <div class="pill"><span class="dot"></span><span>GMT +2</span></div>
-            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(122,162,255,.95))"></span><span>UI/UX (UI SYSTEM REPLACE)</span></div>
-            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>Fivem</span></div>
+            <div class="pill"><span class="dot"></span><span>Lua/U</span></div>
             <div class="pill"><span class="dot"></span><span>Java</span></div>
-            <div class="pill"><span class="dot"></span><span>LuaU</span></div>
-            <div class="pill"><span class="dot"></span><span>RagePluginHook</span></div>
             <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(122,162,255,.95))"></span><span>UI/UX</span></div>
             <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>Fivem</span></div>
-            <div class="pill"><span class="dot"></span><span>Java</span></div>
-            <div class="pill"><span class="dot"></span><span>Lua/U</span></div>
-            <div class="pill"><span class="dot"></span><span>RagePluginHook</span></div>
-            
+            <div class="pill"><span class="dot"></span><span>RagePluginHook</span></div>     
+            <div class="pill"><span class="dot"></span><span>GMT +2</span></div>       
           </div>
 
           <div class="hero-cta">
@@ -827,7 +811,6 @@
       <div class="section-head">
         <div>
           <h2>Featured scripts</h2>
-          <p class="lead">Each card is the overview. Click code if you want the implementation.</p>
           <p class="lead">Each card is the overview.</p>
         </div>
       </div>
