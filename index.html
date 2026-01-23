@@ -780,6 +780,12 @@
             <div class="pill"><span class="dot"></span><span>Java</span></div>
             <div class="pill"><span class="dot"></span><span>LuaU</span></div>
             <div class="pill"><span class="dot"></span><span>RagePluginHook</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(122,162,255,.95))"></span><span>UI/UX</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>Fivem</span></div>
+            <div class="pill"><span class="dot"></span><span>Java</span></div>
+            <div class="pill"><span class="dot"></span><span>Lua/U</span></div>
+            <div class="pill"><span class="dot"></span><span>RagePluginHook</span></div>
+            
           </div>
 
           <div class="hero-cta">
@@ -822,6 +828,7 @@
         <div>
           <h2>Featured scripts</h2>
           <p class="lead">Each card is the overview. Click code if you want the implementation.</p>
+          <p class="lead">Each card is the overview.</p>
         </div>
       </div>
 
@@ -1519,6 +1526,167 @@ end
 
 local function mkErr(code, msg)
   return { ok = false, code = code, message = msg }
+end
+
+local function validate(schema, value, path)
+  path = path or ""
+  if schema == nil then return true end
+  local st = schema.t
+  if st == "any" or st == nil then return true end
+  if st == "string" then
+    if type(value) ~= "string" then return false, mkErr("type", path .. " expected string") end
+    if schema.min and #value < schema.min then return false, mkErr("min", path .. " too short") end
+    if schema.max and #value > schema.max then return false, mkErr("max", path .. " too long") end
+    if schema.enum then
+      local ok = false
+      for i = 1, #schema.enum do
+        if value == schema.enum[i] then
+          ok = true
+          break
+        end
+      end
+      if not ok then return false, mkErr("enum", path .. " invalid value") end
+    end
+    return true
+  end
+  if st == "number" then
+    if type(value) ~= "number" then return false, mkErr("type", path .. " expected number") end
+    if schema.min and value < schema.min then return false, mkErr("min", path .. " too small") end
+    if schema.max and value > schema.max then return false, mkErr("max", path .. " too large") end
+    return true
+  end
+  if st == "boolean" then
+    if type(value) ~= "boolean" then return false, mkErr("type", path .. " expected boolean") end
+    return true
+  end
+  if st == "table" then
+    if type(value) ~= "table" then return false, mkErr("type", path .. " expected table") end
+    return true
+  end
+  if st == "array" then
+    if type(value) ~= "table" then return false, mkErr("type", path .. " expected array") end
+    local item = schema.item
+    local count = 0
+    for k, v in pairs(value) do
+      if type(k) ~= "number" then return false, mkErr("array", path .. " non-numeric key") end
+      count += 1
+      local ok, e = validate(item, v, path .. "[" .. tostring(k) .. "]")
+      if not ok then return false, e end
+    end
+    if schema.min and count < schema.min then return false, mkErr("min", path .. " not enough items") end
+    if schema.max and count > schema.max then return false, mkErr("max", path .. " too many items") end
+    return true
+  end
+  if st == "object" then
+    if type(value) ~= "table" then return false, mkErr("type", path .. " expected object") end
+    local shape = schema.shape or {}
+    for key, subSchema in pairs(shape) do
+      local v = value[key]
+      if v == nil then
+        if not subSchema.optional then return false, mkErr("missing", (path .. "." .. tostring(key)) .. " missing") end
+      else
+        local ok, e = validate(subSchema, v, path .. "." .. tostring(key))
+        if not ok then return false, e end
+      end
+    end
+    if schema.strict then
+      for k in pairs(value) do
+        if shape[k] == nil then return false, mkErr("strict", path .. " unknown key " .. tostring(k)) end
+      end
+    end
+    return true
+  end
+  return false, mkErr("schema", path .. " unknown schema")
+end
+
+function NetGuard.new()
+  local self = setmetatable({}, NetGuard)
+  self._folder = ensureFolder()
+  self._endpoints = {}
+  self._rl = {}
+  Players.PlayerRemoving:Connect(function(plr)
+    self._rl[plr] = nil
+  end)
+  return self
+end
+
+function NetGuard:CreateRequest(name, schema, handler, opts)
+  assert(type(name) == "string" and #name > 0, "name required")
+  assert(type(handler) == "function", "handler required")
+  opts = opts or {}
+  local rf = self._folder:FindFirstChild(name)
+  if rf then rf:Destroy() end
+  rf = Instance.new("RemoteFunction")
+  rf.Name = name
+  rf.Parent = self._folder
+  local rate = opts.ratePerSecond or 10
+  local burst = opts.burst or math.max(10, rate)
+  local permission = opts.permission
+  self._endpoints[name] = { kind = "rf", schema = schema, handler = handler, opts = opts }
+  rf.OnServerInvoke = function(player, payload)
+    self._rl[player] = self._rl[player] or {}
+    local rl = self._rl[player][name]
+    if not rl then
+      rl = rateLimiterNew(rate, burst)
+      self._rl[player][name] = rl
+    end
+    if not rateAllow(rl) then return mkErr("rate", "rate limited") end
+    local ok, e = validate(schema, payload, name)
+    if not ok then return e end
+    if type(permission) == "function" then
+      local allowed
+      local psucc = pcall(function()
+        allowed = permission(player, payload)
+      end)
+      if not psucc then return mkErr("permission", "permission check failed") end
+      if not allowed then return mkErr("permission", "not allowed") end
+    end
+    local result
+    local hs = pcall(function()
+      result = handler(player, payload)
+    end)
+    if not hs then return mkErr("server", "handler error") end
+    return { ok = true, data = result }
+  end
+  return rf
+end
+
+function NetGuard:CreateEvent(name, schema, handler, opts)
+  assert(type(name) == "string" and #name > 0, "name required")
+  assert(type(handler) == "function", "handler required")
+  opts = opts or {}
+  local re = self._folder:FindFirstChild(name)
+  if re then re:Destroy() end
+  re = Instance.new("RemoteEvent")
+  re.Name = name
+  re.Parent = self._folder
+  local rate = opts.ratePerSecond or 15
+  local burst = opts.burst or math.max(15, rate)
+  local permission = opts.permission
+  self._endpoints[name] = { kind = "re", schema = schema, handler = handler, opts = opts }
+  re.OnServerEvent:Connect(function(player, payload)
+    self._rl[player] = self._rl[player] or {}
+    local rl = self._rl[player][name]
+    if not rl then
+      rl = rateLimiterNew(rate, burst)
+      self._rl[player][name] = rl
+    end
+    if not rateAllow(rl) then return end
+    local ok = validate(schema, payload, name)
+    if not ok then return end
+    if type(permission) == "function" then
+      local allowed
+      local psucc = pcall(function()
+        allowed = permission(player, payload)
+      end)
+      if not psucc or not allowed then return end
+    end
+    task.spawn(handler, player, payload)
+  end)
+  return re
+end
+
+=======
 end
 
 local function validate(schema, value, path)
