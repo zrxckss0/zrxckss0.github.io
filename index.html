@@ -1497,7 +1497,7 @@ end
 
 return DataVault`
       },
-      {
+           {
         id: "placement",
         title: "NetGuard",
         subtitle: "Secure Remote Framework + Rate Limits",
@@ -1686,19 +1686,16 @@ function NetGuard:CreateRequest(name, schema, handler, opts)
 
 		if type(permission) == "function" then
 			local allowed
-			local psucc, perr = pcall(function()
+			local psucc = pcall(function()
 				allowed = permission(player, payload)
 			end)
-			if not psucc then
-				return mkErr("permission", "permission check failed")
-			end
-			if not allowed then
+			if not psucc or not allowed then
 				return mkErr("permission", "not allowed")
 			end
 		end
 
 		local result
-		local hs, herr = pcall(function()
+		local hs = pcall(function()
 			result = handler(player, payload)
 		end)
 		if not hs then
@@ -1767,55 +1764,8 @@ function NetGuard:CreateEvent(name, schema, handler, opts)
 	return re
 end
 
-return NetGuard'
+return NetGuard`
       }
-    ]
-
-    const elCards = document.getElementById("projectCards")
-    const modalBackdrop = document.getElementById("modalBackdrop")
-    const modalTitle = document.getElementById("modalTitle")
-    const modalBody = document.getElementById("modalBody")
-    const modalClose = document.getElementById("modalClose")
-
-    const escapeHtml = (s) => String(s)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;")
-
-    function openModal(title, bodyHtml){
-      modalTitle.textContent = title
-      modalBody.innerHTML = bodyHtml
-      modalBackdrop.classList.add("show")
-      document.body.style.overflow = "hidden"
-      requestAnimationFrame(() => {
-        const focusable = modalBackdrop.querySelector("button, input, a")
-        if (focusable) focusable.focus()
-      })
-    }
-
-    function closeModal(){
-      modalBackdrop.classList.remove("show")
-      document.body.style.overflow = ""
-      modalBody.innerHTML = ""
-    }
-
-    modalClose.addEventListener("click", closeModal)
-    modalBackdrop.addEventListener("click", (e) => {
-      if (e.target === modalBackdrop) closeModal()
-    })
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && modalBackdrop.classList.contains("show")) closeModal()
-    })
-
-    function buildCode(project){
-      const codeId = `code_${project.id}`
-      const qId = `q_${project.id}`
-      const raw = project.code || ""
-      const safe = escapeHtml(raw)
-
-      return `
         <div class="code-toolbar">
           <div class="left">
             <div class="field">
