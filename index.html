@@ -1,0 +1,1359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Portfolio</title>
+
+  <style>
+    :root{
+      --bg0:#070A12;
+      --bg1:#0B1020;
+      --card:#0E1630CC;
+      --border:#2B3A75;
+      --text:#EAF0FF;
+      --muted:#A7B3D6;
+      --muted2:#7E8AB0;
+      --accent:#7C5CFF;
+      --accent2:#29D3FF;
+      --good:#5CFF9A;
+      --warn:#FFB84D;
+      --shadow: 0 16px 55px rgba(0,0,0,.45);
+      --radius:18px;
+      --radius2:26px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 900px at 15% -10%, rgba(124,92,255,.35), transparent 55%),
+        radial-gradient(900px 700px at 90% 10%, rgba(41,211,255,.20), transparent 55%),
+        radial-gradient(800px 700px at 65% 115%, rgba(92,255,154,.16), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    a{color:inherit;text-decoration:none}
+    img,video{max-width:100%;display:block}
+
+    .wrap{max-width:1120px;margin:0 auto;padding:26px 18px 60px}
+    .topbar{
+      position:sticky; top:0; z-index:30;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(7,10,18,.85), rgba(7,10,18,.35));
+      border-bottom:1px solid rgba(43,58,117,.35);
+    }
+    .topbar-inner{
+      max-width:1120px;margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      font-weight:750; letter-spacing:.2px;
+    }
+    .logo{
+      width:40px;height:40px;border-radius:12px;
+      background:
+        radial-gradient(12px 12px at 28% 30%, rgba(255,255,255,.75), transparent 55%),
+        linear-gradient(135deg, rgba(124,92,255,.95), rgba(41,211,255,.78));
+      box-shadow: 0 10px 30px rgba(124,92,255,.20);
+      border:1px solid rgba(255,255,255,.14);
+    }
+    .nav{
+      display:flex; gap:14px; align-items:center;
+      color:var(--muted);
+      font-weight:600;
+    }
+    .nav a{
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid transparent;
+    }
+    .nav a:hover{
+      color:var(--text);
+      border-color: rgba(43,58,117,.55);
+      background: rgba(14,22,48,.45);
+    }
+    .cta{
+      display:flex; gap:10px; align-items:center;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:14px;
+      border:1px solid rgba(43,58,117,.65);
+      background: rgba(14,22,48,.48);
+      box-shadow: 0 10px 22px rgba(0,0,0,.24);
+      font-weight:700;
+      color:var(--text);
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn:hover{
+      border-color: rgba(124,92,255,.65);
+      background: rgba(14,22,48,.65);
+    }
+    .btn.primary{
+      border-color: rgba(124,92,255,.85);
+      background: linear-gradient(135deg, rgba(124,92,255,.75), rgba(41,211,255,.32));
+    }
+    .btn.primary:hover{
+      background: linear-gradient(135deg, rgba(124,92,255,.85), rgba(41,211,255,.42));
+    }
+    .btn.small{padding:8px 12px;border-radius:12px;font-weight:750}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(43,58,117,.55);
+      background: rgba(14,22,48,.38);
+      color:var(--muted);
+      font-weight:700;
+      width:max-content;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(124,92,255,.9));
+      box-shadow: 0 0 0 4px rgba(124,92,255,.18);
+    }
+
+    .hero{
+      padding:34px 0 14px;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:22px;
+      align-items:stretch;
+    }
+    .panel{
+      border-radius: var(--radius2);
+      border:1px solid rgba(43,58,117,.60);
+      background: linear-gradient(180deg, rgba(14,22,48,.65), rgba(14,22,48,.28));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .panel::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(450px 250px at 10% 0%, rgba(124,92,255,.22), transparent 55%),
+        radial-gradient(420px 240px at 80% 20%, rgba(41,211,255,.14), transparent 55%);
+      pointer-events:none;
+    }
+    .hero-left{padding:24px 22px 22px}
+    .hero-title{
+      font-size: clamp(30px, 4.4vw, 50px);
+      margin:10px 0 10px;
+      line-height:1.05;
+      letter-spacing:-.8px;
+    }
+    .hero-sub{
+      color:var(--muted);
+      font-size: 16px;
+      line-height:1.55;
+      margin:0 0 16px;
+      max-width:64ch;
+    }
+    .badges{display:flex; flex-wrap:wrap; gap:10px; margin:12px 0 18px}
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .stat{
+      padding:14px 14px;
+      border-radius: 18px;
+      border:1px solid rgba(43,58,117,.55);
+      background: rgba(7,10,18,.35);
+    }
+    .stat .k{color:var(--muted2); font-weight:800; font-size:12px; letter-spacing:.4px; text-transform:uppercase}
+    .stat .v{font-weight:850; font-size:18px; margin-top:8px}
+    .hero-right{
+      display:flex; flex-direction:column;
+    }
+    .profile{
+      padding:18px 18px 16px;
+      height:100%;
+      display:flex; flex-direction:column; gap:12px;
+    }
+    .avatar{
+      width:100%;
+      aspect-ratio: 16/10;
+      border-radius: 22px;
+      border:1px solid rgba(255,255,255,.12);
+      background:
+        radial-gradient(16px 16px at 25% 35%, rgba(255,255,255,.78), transparent 60%),
+        radial-gradient(380px 240px at 25% 20%, rgba(124,92,255,.40), transparent 60%),
+        radial-gradient(340px 220px at 80% 30%, rgba(41,211,255,.28), transparent 60%),
+        linear-gradient(135deg, rgba(14,22,48,.65), rgba(7,10,18,.65));
+      box-shadow: 0 12px 34px rgba(0,0,0,.35);
+      overflow:hidden;
+      position:relative;
+    }
+    .avatar::after{
+      content:"";
+      position:absolute; inset:-1px;
+      background:
+        linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+      transform: translateX(-60%);
+      animation: shine 4.2s ease-in-out infinite;
+      opacity:.9;
+      pointer-events:none;
+    }
+    @keyframes shine{
+      0%, 35%{transform:translateX(-60%); opacity:0}
+      45%{opacity:.85}
+      70%{transform:translateX(60%); opacity:0}
+      100%{transform:translateX(60%); opacity:0}
+    }
+    .quick{
+      display:flex; flex-wrap:wrap; gap:10px;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .quick a{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(43,58,117,.55);
+      background: rgba(7,10,18,.34);
+    }
+    .quick a:hover{
+      border-color: rgba(41,211,255,.55);
+      color:var(--text);
+    }
+
+    .section{
+      padding:18px 0 4px;
+      margin-top:8px;
+    }
+    .section-head{
+      display:flex; align-items:end; justify-content:space-between; gap:10px;
+      margin:10px 2px 12px;
+    }
+    .section h2{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:-.2px;
+    }
+    .section p.lead{
+      margin:0;
+      color:var(--muted);
+      max-width:70ch;
+      line-height:1.55;
+      font-weight:600;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+    .card{
+      grid-column: span 6;
+      border-radius: var(--radius);
+      border:1px solid rgba(43,58,117,.55);
+      background: linear-gradient(180deg, rgba(14,22,48,.60), rgba(7,10,18,.25));
+      box-shadow: 0 10px 35px rgba(0,0,0,.28);
+      overflow:hidden;
+      position:relative;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(320px 220px at 20% 0%, rgba(124,92,255,.18), transparent 60%),
+        radial-gradient(280px 220px at 85% 20%, rgba(41,211,255,.10), transparent 60%);
+      pointer-events:none;
+    }
+    .card-inner{position:relative;padding:16px 16px 14px}
+    .card-top{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+      margin-bottom:10px;
+    }
+    .card h3{
+      margin:0;
+      font-size: 16px;
+      letter-spacing:-.2px;
+    }
+    .tagrow{
+      display:flex; flex-wrap:wrap; gap:8px;
+      margin:10px 0 12px;
+    }
+    .tag{
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(43,58,117,.55);
+      background: rgba(7,10,18,.32);
+      color:var(--muted);
+      font-weight:750;
+      font-size:12px;
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      font-weight:600;
+    }
+    .card-actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .ghost{
+      background: rgba(7,10,18,.30);
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      align-items:stretch;
+    }
+
+    .media-grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+    .media{
+      grid-column: span 4;
+      border-radius: var(--radius);
+      border:1px solid rgba(43,58,117,.55);
+      background: rgba(14,22,48,.38);
+      overflow:hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,.25);
+    }
+    .media .cap{
+      padding:12px 12px 13px;
+      color:var(--muted);
+      font-weight:650;
+      line-height:1.4;
+    }
+    .media .frame{
+      aspect-ratio: 16/10;
+      background: rgba(7,10,18,.30);
+      border-bottom:1px solid rgba(43,58,117,.40);
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
+
+    .footer{
+      margin-top:26px;
+      padding:18px 0 0;
+      color:var(--muted2);
+      border-top: 1px solid rgba(43,58,117,.35);
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+      font-weight:650;
+    }
+
+    .modal-backdrop{
+      position:fixed; inset:0;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding:18px;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      z-index:70;
+    }
+    .modal-backdrop.show{display:flex}
+    .modal{
+      width:min(980px, 100%);
+      max-height: calc(100vh - 36px);
+      overflow:hidden;
+      border-radius: 22px;
+      border:1px solid rgba(43,58,117,.65);
+      background: linear-gradient(180deg, rgba(14,22,48,.92), rgba(7,10,18,.86));
+      box-shadow: 0 24px 80px rgba(0,0,0,.55);
+      display:flex;
+      flex-direction:column;
+    }
+    .modal-head{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 14px 12px;
+      border-bottom:1px solid rgba(43,58,117,.50);
+      gap:10px;
+    }
+    .modal-title{
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .modal-title b{
+      font-size: 14px;
+      letter-spacing:.1px;
+    }
+    .modal-title span{
+      font-size:12px;
+      color:var(--muted2);
+      font-weight:700;
+    }
+    .modal-body{
+      padding:14px;
+      overflow:auto;
+    }
+    .modal-close{
+      border:1px solid rgba(43,58,117,.65);
+      background: rgba(7,10,18,.35);
+      border-radius: 14px;
+      padding:10px 12px;
+      font-weight:850;
+      cursor:pointer;
+    }
+    .modal-close:hover{
+      border-color: rgba(124,92,255,.70);
+      background: rgba(7,10,18,.45);
+    }
+
+    .code-toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .code-toolbar .left{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    .field{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(43,58,117,.55);
+      background: rgba(7,10,18,.30);
+    }
+    .field input{
+      border:0;
+      outline:none;
+      background:transparent;
+      color:var(--text);
+      width:min(340px, 58vw);
+      font-weight:700;
+      letter-spacing:.1px;
+    }
+    .hint{
+      color:var(--muted2);
+      font-weight:700;
+      font-size:12px;
+    }
+    .codebox{
+      border-radius: 18px;
+      border:1px solid rgba(43,58,117,.55);
+      background: rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    pre{
+      margin:0;
+      padding:14px;
+      font-family:var(--mono);
+      font-size:12px;
+      line-height:1.55;
+      color: #EAF0FF;
+      white-space:pre;
+      overflow:auto;
+      tab-size:2;
+    }
+    .kbd{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:3px 7px;
+      border-radius: 10px;
+      border:1px solid rgba(43,58,117,.55);
+      background: rgba(7,10,18,.35);
+      color: var(--muted);
+      font-weight:800;
+    }
+
+    @media (max-width: 980px){
+      .hero{grid-template-columns: 1fr; gap:14px}
+      .card{grid-column: span 12}
+      .split{grid-template-columns: 1fr}
+      .media{grid-column: span 6}
+    }
+    @media (max-width: 640px){
+      .nav{display:none}
+      .media{grid-column: span 12}
+      .field input{width: 52vw}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div style="font-size:14px; font-weight:850">Your Name</div>
+          <div style="font-size:12px; color:var(--muted2); font-weight:750">Roblox Scripter • Systems • UI</div>
+        </div>
+      </div>
+
+      <div class="nav" role="navigation" aria-label="Primary">
+        <a href="#projects">Projects</a>
+        <a href="#media">Media</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </div>
+
+      <div class="cta">
+        <a class="btn small ghost" href="#contact">Contact</a>
+        <a class="btn small primary" href="#projects">View work</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="hero" id="top">
+      <div class="panel hero-left">
+        <div style="position:relative">
+          <div class="pill"><span class="dot"></span><span>Available for projects</span></div>
+          <h1 class="hero-title">Building clean, scalable game systems.</h1>
+          <p class="hero-sub">
+            Portfolio of production-focused Roblox systems: logging, networking, UI frameworks, and gameplay utilities.
+            Everything here is designed with performance, clarity, and real-world debugging in mind.
+          </p>
+
+          <div class="badges">
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(41,211,255,.9))"></span><span>LuaU</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(92,255,154,.9))"></span><span>Optimization</span></div>
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,184,77,.95))"></span><span>UI & UX</span></div>
+          </div>
+
+          <div class="grid2">
+            <div class="stat">
+              <div class="k">Focus</div>
+              <div class="v">Systems & tooling</div>
+            </div>
+            <div class="stat">
+              <div class="k">Strength</div>
+              <div class="v">Clean architecture</div>
+            </div>
+            <div class="stat">
+              <div class="k">Style</div>
+              <div class="v">Readable, scalable</div>
+            </div>
+            <div class="stat">
+              <div class="k">Delivery</div>
+              <div class="v">Production-ready</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px">
+            <a class="btn primary" href="#projects">Explore projects</a>
+            <a class="btn ghost" href="#media">Watch demos</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel hero-right">
+        <div class="profile" style="position:relative">
+          <div class="avatar" aria-label="Header visual"></div>
+          <div class="quick">
+            <a href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://www.roblox.com/" target="_blank" rel="noreferrer">Roblox</a>
+            <a href="#contact">Email</a>
+          </div>
+          <div style="color:var(--muted); font-weight:650; line-height:1.55">
+            Replace this paragraph with your short bio: who you are, what you build, and what you’re aiming for.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="projects">
+      <div class="section-head">
+        <div>
+          <h2>Featured projects</h2>
+          <p class="lead">Click a card to open details, then view code in a dedicated code tab.</p>
+        </div>
+        <div class="pill"><span class="dot"></span><span>4 highlights</span></div>
+      </div>
+
+      <div class="cards" id="projectCards"></div>
+    </section>
+
+    <section class="section" id="media">
+      <div class="section-head">
+        <div>
+          <h2>Media</h2>
+          <p class="lead">Drop screenshots and short demo clips here.</p>
+        </div>
+        <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(41,211,255,.9))"></span><span>Images & video</span></div>
+      </div>
+
+      <div class="media-grid">
+        <div class="media">
+          <div class="frame">
+            <img src="media/demo1.png" alt="Demo screenshot 1" onerror="this.closest('.frame').innerHTML='<div style=&quot;color:var(--muted2);font-weight:750;padding:18px;text-align:center&quot;>Add media/demo1.png</div>'">
+          </div>
+          <div class="cap">Demo screenshot placeholder.</div>
+        </div>
+
+        <div class="media">
+          <div class="frame">
+            <video src="media/demo1.mp4" controls muted playsinline onerror="this.closest('.frame').innerHTML='<div style=&quot;color:var(--muted2);font-weight:750;padding:18px;text-align:center&quot;>Add media/demo1.mp4</div>'"></video>
+          </div>
+          <div class="cap">Demo clip placeholder.</div>
+        </div>
+
+        <div class="media">
+          <div class="frame">
+            <img src="media/demo2.png" alt="Demo screenshot 2" onerror="this.closest('.frame').innerHTML='<div style=&quot;color:var(--muted2);font-weight:750;padding:18px;text-align:center&quot;>Add media/demo2.png</div>'">
+          </div>
+          <div class="cap">Another screenshot placeholder.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="section-head">
+        <div>
+          <h2>About</h2>
+          <p class="lead">A quick overview recruiters can skim in 15 seconds.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="panel" style="padding:16px 16px 14px">
+          <div style="position:relative">
+            <div class="pill"><span class="dot"></span><span>What I do</span></div>
+            <div style="margin-top:10px; color:var(--muted); font-weight:650; line-height:1.6">
+              Write your summary here: what types of systems you build (combat, UI frameworks, tools, networking),
+              what you care about (performance, clean architecture, debugging), and what kind of teams you work well with.
+            </div>
+            <div class="tagrow" style="margin-top:14px">
+              <span class="tag">Systems design</span>
+              <span class="tag">Tooling</span>
+              <span class="tag">UI</span>
+              <span class="tag">Networking</span>
+              <span class="tag">Optimization</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="padding:16px 16px 14px">
+          <div style="position:relative">
+            <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(92,255,154,.9))"></span><span>Skills</span></div>
+            <div class="tagrow" style="margin-top:12px">
+              <span class="tag">LuaU</span>
+              <span class="tag">RemoteEvents</span>
+              <span class="tag">Module architecture</span>
+              <span class="tag">Data validation</span>
+              <span class="tag">Tween/UI polish</span>
+              <span class="tag">Profiling</span>
+            </div>
+            <div style="margin-top:10px; color:var(--muted); font-weight:650; line-height:1.6">
+              Add your strongest categories and what you’re confident shipping without supervision.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="section-head">
+        <div>
+          <h2>Contact</h2>
+          <p class="lead">Put your best contact method here.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="padding:16px 16px 14px">
+        <div style="position:relative; display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between">
+          <div>
+            <div style="font-weight:900; letter-spacing:.2px">Let’s build something.</div>
+            <div style="color:var(--muted); font-weight:650; margin-top:6px; line-height:1.55">
+              Email: <span style="color:var(--text); font-weight:850">you@example.com</span> • Discord: <span style="color:var(--text); font-weight:850">yourtag</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap">
+            <a class="btn primary" href="mailto:you@example.com">Email me</a>
+            <a class="btn ghost" href="#top">Back to top</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <div>© <span id="year"></span> Your Name</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <a href="#projects">Projects</a>
+        <a href="#media">Media</a>
+        <a href="#about">About</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-label="Project modal">
+    <div class="modal" id="modal">
+      <div class="modal-head">
+        <div class="modal-title">
+          <b id="modalTitle">Title</b>
+          <span id="modalSubtitle">Subtitle</span>
+        </div>
+        <button class="modal-close" id="modalClose" type="button">Close</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const PROJECTS = [
+      {
+        id: "logger",
+        title: "LogService Module",
+        subtitle: "Structured logging + Discord webhook, studio/server filtering",
+        summary: "A production logger module that routes logs by severity, supports studio limits, and can send Discord embeds via webhook for server diagnostics.",
+        highlights: [
+          "Severity-aware output routing (print/warn/error)",
+          "Studio vs server/client log thresholds",
+          "Discord embed logging with retries",
+          "Readable formatting including origin + line"
+        ],
+        tags: ["LuaU", "Tooling", "Debugging", "Discord webhook"],
+        details: [
+          "Designed to keep production consoles clean while still capturing high-value failures.",
+          "Supports separate thresholds for studio testing vs live servers.",
+          "Webhook logging can be toggled by placing a WebhookUrl StringValue in ServerStorage."
+        ],
+        repo: "",
+        demo: "",
+        codeLanguage: "LuaU",
+        code: `-- My standard logger module, useful for keeping clean consoles in prod. Includes discord webhook support
+
+--[[
+
+Example Usage:
+	
+local LogService = require(ReplicatedStorage.LogService)
+LogService:Log(Enum.AnalyticsLogLevel.Warn, 'This is a warning message.')
+LogService:Warn('This is also a warning message!')
+
+
+LogLevels (Enum.AnalyticsLogLevel):
+{
+  [0] = Trace (TRA)
+  [1] = Debug (DEB)
+  [2] = Information (INF)
+  [3] = Warning (WARN)
+  [4] = Error (ERR)
+  [5] = Fatal (FAT)
+}
+
+
+Settings:
+{
+  LogInStudio: bool - Whether logs sent using this module should be printed in studio
+  MinimumLogLevel: number - The minimum log level to print
+  
+  StudioMaximumLogLevel: number - The maximum log level that will be logged while in studio testing
+  StudioMinimumLogLevel: number - The minimum log level that will be logged while in studio testing
+  
+  DiscordMinimumLogLevel: number - The minimum log level that will be send through the discord webhook, cannot be less than MinimumLogLevel
+}
+
+Make sure there is a StringValue inside ServerStorage named "WebhookUrl" in order to use the WebhookLogger
+
+--]]
+
+local runs = game:GetService('RunService')
+local ss = game:GetService('ServerStorage')
+local http = game:GetService('HttpService')
+
+local module = {}
+
+local ShortLogLevels = {
+  [0] = 'TRA',
+  [1] = 'DEB',
+  [2] = 'INF',
+  [3] = 'WARN',
+  [4] = 'ERR',
+  [5] = 'FAT',
+}
+
+local EmbedColors = {
+  [Enum.AnalyticsLogLevel.Trace] = 8289918,
+  [Enum.AnalyticsLogLevel.Debug] = 8289918,
+  [Enum.AnalyticsLogLevel.Information] = 8289918,
+  [Enum.AnalyticsLogLevel.Warning] = 16749598,
+  [Enum.AnalyticsLogLevel.Error] = 16711680,
+  [Enum.AnalyticsLogLevel.Fatal] = 6881280,
+}
+
+local LogLevelFuncs = {
+  [0] = print,
+  [3] = warn,
+  [4] = error
+}
+
+local Settings = {
+  LogInStudio = script:GetAttribute('LogInStudio'),
+  MinimumLogLevel = script:GetAttribute('MinimumLogLevel'),
+  StudioMaximumLogLevel = script:GetAttribute('StudioMaximumLogLevel'),
+  StudioMinimumLogLevel = script:GetAttribute('StudioMinimumLogLevel'),
+  DiscordMinimumLogLevel = script:GetAttribute('DiscordMinimumLogLevel'),
+}
+
+local function SendRequest(Url:string, EncodedData:string, Attempt:number?)
+  Attempt = Attempt or 1
+  local succ,err = pcall(http.PostAsync, http, Url, EncodedData, Enum.HttpContentType.ApplicationJson)
+  if not succ and Attempt <= 3 then
+    task.wait(1)
+    SendRequest(Url, EncodedData, Attempt+1)
+  elseif not succ and Attempt > 3 then
+    task.spawn(error, \`Failed to send request to url (\${Url}) with data:\`, EncodedData, \`\\nError: \${err}\`)
+  end
+end
+
+local function TableToStr(Tbl, Ind)
+  if type(Tbl) ~= 'table' then
+    return tostring(Tbl)
+  end
+  if not Ind then
+    Ind = 1
+  end
+  local Str = '{\\n'
+  for i,v in Tbl do
+    for i=1, Ind, 1 do
+      Str ..= ' '
+    end
+    Str ..= \`[\\"\${TableToStr(i, Ind+1)}\\"] = \${TableToStr(v, Ind+1)},\\n\`
+  end
+  for i=1, Ind-1, 1 do
+    Str ..= ' '
+  end
+  Str ..= '}'
+  return Str
+end
+
+local function FormatLogMessage(...)
+  local Args = {...}
+  local Str = ''
+  for i,v in Args do
+    Str ..= \`\${TableToStr(v)}\`
+  end
+  return Str
+end
+
+local function AttemptWebhookLog(Severity:Enum.AnalyticsLogLevel, ...)
+  if Severity.Value < Settings.DiscordMinimumLogLevel then
+    return
+  end
+
+  local WebHookUrl = ss:FindFirstChild('WebhookUrl')
+  if not WebHookUrl or WebHookUrl.Value == '' then
+    return
+  end
+
+  local Source = debug.info(4, 's')
+  local Line = debug.info(4, 'l')
+  local Name = debug.info(4, 'n')
+
+  local Origin =
+    if #Name > 0 then
+      \`[\${Source}|\${Name}:\${Line}]\`
+    else
+      \`[\${Source}:\${Line}]\`
+
+  local Server =
+    if game.JobId == '' then
+      'Local Server'
+    else
+      \`Server #\${game.JobId}\`
+
+  local Data = {
+    ['embeds'] = {{
+      ['description'] = FormatLogMessage(Origin, ...),
+      ['title'] = \`\${Severity.Name} (\${Server})\`,
+      ['color'] = EmbedColors[Severity]
+    }}
+  }
+
+  Data = http:JSONEncode(Data)
+  SendRequest(WebHookUrl.Value, Data)
+end
+
+local function CheckStudioShouldLog(Severity:Enum.AnalyticsLogLevel)
+  if Severity.Value > Settings.StudioMaximumLogLevel then
+    return false
+  end
+  if Severity.Value < Settings.StudioMinimumLogLevel then
+    return false
+  end
+  return true
+end
+
+local function CheckServerShouldLog(Severity:Enum.AnalyticsLogLevel)
+  if Severity.Value < Settings.MinimumLogLevel then
+    return false
+  end
+  return true
+end
+
+local function CheckClientShouldLog(Severity:Enum.AnalyticsLogLevel)
+  if Severity.Value < Settings.MinimumLogLevel then
+    return false
+  end
+  return true
+end
+
+local function Log(Severity:Enum.AnalyticsLogLevel, ...)
+  if runs:IsStudio() and not CheckStudioShouldLog(Severity) then
+    return
+  end
+  if not runs:IsStudio() and runs:IsServer() and not CheckServerShouldLog(Severity) then
+    return
+  end
+  if not runs:IsStudio() and runs:IsClient() and not CheckClientShouldLog(Severity) then
+    return
+  end
+
+  local Source = debug.info(3, 's')
+  local Line = debug.info(3, 'l')
+  local Name = debug.info(3, 'n')
+
+  local Level = \`[\${ShortLogLevels[Severity.Value]}]\`
+  local Origin =
+    if #Name > 0 then
+      \`[\${Source}|\${Name}:\${Line}:]\`
+    else
+      \`[\${Source}:\${Line}:]\`
+
+  local LogFunc = print
+  for i,v in LogLevelFuncs do
+    LogFunc = if i <= Severity.Value then v else LogFunc
+  end
+
+  task.spawn(LogFunc, FormatLogMessage(Level, Origin, ...))
+  AttemptWebhookLog(Severity, ...)
+end
+
+function module:Log(Severity:Enum.AnalyticsLogLevel, ...)
+  Log(Severity, ...)
+end
+
+function module:Trace(...)
+  Log(Enum.AnalyticsLogLevel.Trace, ...)
+end
+
+function module:Debug(...)
+  Log(Enum.AnalyticsLogLevel.Debug, ...)
+end
+
+function module:Info(...)
+  Log(Enum.AnalyticsLogLevel.Information, ...)
+end
+
+function module:Warn(...)
+  Log(Enum.AnalyticsLogLevel.Warning, ...)
+end
+
+function module:Error(...)
+  Log(Enum.AnalyticsLogLevel.Error, ...)
+end
+
+function module:Fatal(...)
+  Log(Enum.AnalyticsLogLevel.Fatal, ...)
+end
+
+return module`
+      },
+
+      {
+        id: "networking",
+        title: "Typed Networking Layer",
+        subtitle: "Request/response + validation, predictable remotes",
+        summary: "A lightweight remote wrapper that standardizes event names, payload validation, and supports request/response patterns.",
+        highlights: [
+          "Single source of truth for remote names",
+          "Payload validation and safe rejects",
+          "Client request with timeout handling",
+          "Server-side rate limiting hooks"
+        ],
+        tags: ["LuaU", "Networking", "Security", "Architecture"],
+        details: [
+          "Helps avoid spaghetti RemoteEvent usage by enforcing patterns.",
+          "Adds structure: validation, timeouts, and consistent naming.",
+          "Reduces exploit surface by validating payloads and limiting frequency."
+        ],
+        repo: "",
+        demo: "",
+        codeLanguage: "LuaU",
+        code: `local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Net = {}
+Net.__index = Net
+
+local FolderName = "Net"
+local folder = ReplicatedStorage:FindFirstChild(FolderName) or Instance.new("Folder")
+folder.Name = FolderName
+folder.Parent = ReplicatedStorage
+
+local function getRemote(name)
+  local r = folder:FindFirstChild(name)
+  if r then return r end
+  r = Instance.new("RemoteEvent")
+  r.Name = name
+  r.Parent = folder
+  return r
+end
+
+function Net.new(name)
+  return setmetatable({ Name = name, Remote = getRemote(name) }, Net)
+end
+
+function Net:FireClient(player, ...)
+  self.Remote:FireClient(player, ...)
+end
+
+function Net:FireAllClients(...)
+  self.Remote:FireAllClients(...)
+end
+
+function Net:FireServer(...)
+  self.Remote:FireServer(...)
+end
+
+function Net:OnServer(handler)
+  return self.Remote.OnServerEvent:Connect(handler)
+end
+
+function Net:OnClient(handler)
+  return self.Remote.OnClientEvent:Connect(handler)
+end
+
+return Net`
+      },
+
+      {
+        id: "ui",
+        title: "UI Interaction Framework",
+        subtitle: "Input hints + animated panels + state handling",
+        summary: "A reusable UI system that standardizes panel toggles, transitions, and device input hints.",
+        highlights: [
+          "State-driven open/close transitions",
+          "Keyboard + gamepad ready",
+          "Simple API for panels and prompts",
+          "Consistent easing and timings"
+        ],
+        tags: ["LuaU", "UI", "TweenService", "UX"],
+        details: [
+          "Built to keep UI consistent across large projects.",
+          "Reduces duplicated tween logic and input handling.",
+          "Makes it easy to ship polished interfaces fast."
+        ],
+        repo: "",
+        demo: "",
+        codeLanguage: "LuaU",
+        code: `local TweenService = game:GetService("TweenService")
+
+local UI = {}
+UI.__index = UI
+
+function UI.new(frame, openPos, closedPos, openRot, closedRot, arrow)
+  return setmetatable({
+    Frame = frame,
+    Arrow = arrow,
+    OpenPos = openPos,
+    ClosedPos = closedPos,
+    OpenRot = openRot,
+    ClosedRot = closedRot,
+    IsOpen = false,
+    Busy = false,
+    Info = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+  }, UI)
+end
+
+function UI:SetOpen(state)
+  if self.Busy then return end
+  self.Busy = true
+  self.IsOpen = state
+
+  local pos = state and self.OpenPos or self.ClosedPos
+  local rot = state and self.OpenRot or self.ClosedRot
+
+  local t1 = TweenService:Create(self.Frame, self.Info, { Position = pos })
+  t1:Play()
+
+  if self.Arrow then
+    local t2 = TweenService:Create(self.Arrow, self.Info, { Rotation = rot })
+    t2:Play()
+  end
+
+  t1.Completed:Wait()
+  self.Busy = false
+end
+
+function UI:Toggle()
+  self:SetOpen(not self.IsOpen)
+end
+
+return UI`
+      },
+
+      {
+        id: "placement",
+        title: "Grid Placement System",
+        subtitle: "Preview + validation highlight + edit mode",
+        summary: "A placement controller that supports preview, snap-to-grid, valid/invalid highlight, and moving already placed items.",
+        highlights: [
+          "Live green/red validation highlight",
+          "Snap-to-grid placement",
+          "Edit mode for placed items",
+          "Mobile-friendly delete confirm patterns"
+        ],
+        tags: ["LuaU", "Gameplay", "Systems", "Tooling"],
+        details: [
+          "Designed for building and tycoon-like flows.",
+          "Supports selecting placed items to re-edit, not destroy/respawn.",
+          "Built with future expansion (multi sessions) in mind."
+        ],
+        repo: "",
+        demo: "",
+        codeLanguage: "Pseudo / LuaU",
+        code: `local Placement = {}
+
+function Placement:SetPreview(model)
+  self.Preview = model
+end
+
+function Placement:SetValidity(isValid)
+  self.IsValid = isValid
+  if isValid then
+    self:ApplyHighlight("Valid")
+  else
+    self:ApplyHighlight("Invalid")
+  end
+end
+
+function Placement:Place()
+  if not self.IsValid then return false end
+  self:CommitPlacement()
+  return true
+end
+
+return Placement`
+      }
+    ]
+
+    const elCards = document.getElementById("projectCards")
+    const modalBackdrop = document.getElementById("modalBackdrop")
+    const modalTitle = document.getElementById("modalTitle")
+    const modalSubtitle = document.getElementById("modalSubtitle")
+    const modalBody = document.getElementById("modalBody")
+    const modalClose = document.getElementById("modalClose")
+
+    const escapeHtml = (s) => String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;")
+
+    function openModal(title, subtitle, bodyHtml){
+      modalTitle.textContent = title
+      modalSubtitle.textContent = subtitle || ""
+      modalBody.innerHTML = bodyHtml
+      modalBackdrop.classList.add("show")
+      document.body.style.overflow = "hidden"
+      requestAnimationFrame(() => {
+        const focusable = modalBackdrop.querySelector("button, input, a")
+        if (focusable) focusable.focus()
+      })
+    }
+
+    function closeModal(){
+      modalBackdrop.classList.remove("show")
+      document.body.style.overflow = ""
+      modalBody.innerHTML = ""
+    }
+
+    modalClose.addEventListener("click", closeModal)
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) closeModal()
+    })
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modalBackdrop.classList.contains("show")) closeModal()
+    })
+
+    function buildDetails(project){
+      const items = project.highlights.map(x => `<li style="margin:6px 0; color:var(--muted); font-weight:650; line-height:1.5">${escapeHtml(x)}</li>`).join("")
+      const tags = project.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("")
+      const details = project.details.map(p => `<div style="color:var(--muted); font-weight:650; line-height:1.6; margin:10px 0">${escapeHtml(p)}</div>`).join("")
+
+      const links = [
+        project.repo ? `<a class="btn small ghost" href="${escapeHtml(project.repo)}" target="_blank" rel="noreferrer">Repo</a>` : "",
+        project.demo ? `<a class="btn small ghost" href="${escapeHtml(project.demo)}" target="_blank" rel="noreferrer">Demo</a>` : "",
+      ].join("")
+
+      return `
+        <div class="pill"><span class="dot"></span><span>${escapeHtml(project.codeLanguage || "Project")}</span></div>
+        <div class="tagrow" style="margin-top:12px">${tags}</div>
+        <div style="margin-top:6px; color:var(--muted); font-weight:650; line-height:1.6">${escapeHtml(project.summary)}</div>
+        <div style="margin-top:12px; display:grid; grid-template-columns: 1fr; gap:10px">
+          <div class="panel" style="padding:14px 14px 12px; border-radius:18px">
+            <div style="position:relative">
+              <div style="font-weight:900; margin-bottom:10px">Highlights</div>
+              <ul style="margin:0; padding-left:18px">${items}</ul>
+            </div>
+          </div>
+          <div class="panel" style="padding:14px 14px 12px; border-radius:18px">
+            <div style="position:relative">
+              <div style="font-weight:900; margin-bottom:8px">Notes</div>
+              ${details}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center; justify-content:space-between">
+          <div style="display:flex; gap:10px; flex-wrap:wrap">
+            <button class="btn small primary" type="button" data-open-code="${escapeHtml(project.id)}">View code</button>
+            ${links}
+          </div>
+          <div class="hint">Tip: <span class="kbd">Esc</span> closes</div>
+        </div>
+      `
+    }
+
+    function buildCode(project){
+      const codeId = `code_${project.id}`
+      const qId = `q_${project.id}`
+      const raw = project.code || ""
+      const safe = escapeHtml(raw)
+
+      return `
+        <div class="code-toolbar">
+          <div class="left">
+            <div class="pill"><span class="dot"></span><span>${escapeHtml(project.title)}</span></div>
+            <div class="field">
+              <span class="hint">Search</span>
+              <input id="${qId}" type="text" placeholder="Find text inside code..." autocomplete="off" />
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap">
+            <button class="btn small ghost" type="button" data-copy="${escapeHtml(project.id)}">Copy</button>
+            <button class="btn small primary" type="button" data-open-info="${escapeHtml(project.id)}">Back to info</button>
+          </div>
+        </div>
+
+        <div class="codebox">
+          <pre id="${codeId}" data-raw="${escapeHtml(raw)}">${safe}</pre>
+        </div>
+
+        <div style="margin-top:10px; color:var(--muted2); font-weight:700; display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between">
+          <div>Search highlights matches in-view.</div>
+          <div>Shortcut: <span class="kbd">Esc</span></div>
+        </div>
+      `
+    }
+
+    function renderCards(){
+      elCards.innerHTML = PROJECTS.map(p => {
+        const tags = p.tags.slice(0,3).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("")
+        return `
+          <article class="card">
+            <div class="card-inner">
+              <div class="card-top">
+                <div>
+                  <h3>${escapeHtml(p.title)}</h3>
+                  <div style="color:var(--muted2); font-weight:750; margin-top:6px">${escapeHtml(p.subtitle)}</div>
+                </div>
+                <div class="pill"><span class="dot"></span><span>${escapeHtml(p.codeLanguage || "Project")}</span></div>
+              </div>
+
+              <div class="tagrow">${tags}</div>
+              <p>${escapeHtml(p.summary)}</p>
+
+              <div class="card-actions">
+                <button class="btn small primary" type="button" data-open-info="${escapeHtml(p.id)}">Open</button>
+                <button class="btn small ghost" type="button" data-open-code="${escapeHtml(p.id)}">Code</button>
+              </div>
+            </div>
+          </article>
+        `
+      }).join("")
+    }
+
+    function getProject(id){
+      return PROJECTS.find(p => p.id === id)
+    }
+
+    function attachHandlers(){
+      document.addEventListener("click", async (e) => {
+        const infoBtn = e.target.closest("[data-open-info]")
+        const codeBtn = e.target.closest("[data-open-code]")
+        const copyBtn = e.target.closest("[data-copy]")
+
+        if (infoBtn){
+          const p = getProject(infoBtn.getAttribute("data-open-info"))
+          if (!p) return
+          openModal(p.title, p.subtitle, buildDetails(p))
+          return
+        }
+
+        if (codeBtn){
+          const p = getProject(codeBtn.getAttribute("data-open-code"))
+          if (!p) return
+          openModal(p.title, "Code", buildCode(p))
+          bindCodeFeatures(p.id)
+          return
+        }
+
+        if (copyBtn){
+          const id = copyBtn.getAttribute("data-copy")
+          const p = getProject(id)
+          if (!p) return
+          try{
+            await navigator.clipboard.writeText(p.code || "")
+            copyBtn.textContent = "Copied"
+            setTimeout(() => copyBtn.textContent = "Copy", 900)
+          }catch{
+            copyBtn.textContent = "Copy failed"
+            setTimeout(() => copyBtn.textContent = "Copy", 900)
+          }
+          return
+        }
+      })
+    }
+
+    function bindCodeFeatures(projectId){
+      const p = getProject(projectId)
+      if (!p) return
+
+      const pre = document.getElementById(`code_${projectId}`)
+      const q = document.getElementById(`q_${projectId}`)
+      if (!pre || !q) return
+
+      const raw = pre.getAttribute("data-raw") || ""
+
+      const render = (needle) => {
+        if (!needle){
+          pre.innerHTML = escapeHtml(raw)
+          return
+        }
+        const safeNeedle = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        const re = new RegExp(safeNeedle, "gi")
+        const parts = escapeHtml(raw).replace(re, (m) => `<mark style="background:rgba(41,211,255,.18); color:var(--text); border:1px solid rgba(41,211,255,.25); padding:0 2px; border-radius:6px">${m}</mark>`)
+        pre.innerHTML = parts
+      }
+
+      q.addEventListener("input", () => render(q.value.trim()))
+      q.focus()
+    }
+
+    renderCards()
+    attachHandlers()
+    document.getElementById("year").textContent = String(new Date().getFullYear())
+  </script>
+</body>
+</html>
