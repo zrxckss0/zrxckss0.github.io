@@ -749,55 +749,6 @@
       transition: transform .30s var(--ease2);
     }
     .theme-fab input:checked + .toggle::before{ transform: translateX(24px); }
-    .view-counter{
-      position:fixed;
-      right:18px;
-      bottom:70px;
-      z-index:30;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 12px;
-      border-radius: 999px;
-      border:1px solid var(--border2);
-      background: rgba(0,0,0,.20);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 16px 40px rgba(0,0,0,.30);
-      color: var(--text);
-      font-weight:900;
-      user-select:none;
-    }
-    [data-theme="light"] .view-counter{
-      background: rgba(255,255,255,.70);
-      box-shadow: 0 14px 34px rgba(0,0,0,.10);
-    }
-    .view-counter .eye{
-      width:28px;
-      height:28px;
-      border-radius:999px;
-      display:grid;
-      place-items:center;
-      background: rgba(255,255,255,.08);
-      border:1px solid var(--border);
-      font-size:14px;
-    }
-    [data-theme="light"] .view-counter .eye{ background: rgba(0,0,0,.05); }
-    .view-counter .stack{
-      display:flex;
-      flex-direction:column;
-      line-height:1.05;
-    }
-    .view-counter .count{
-      font-size:14px;
-      letter-spacing:.2px;
-    }
-    .view-counter .label{
-      font-size:11px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing:.6px;
-    }
-
     @media (prefers-reduced-motion: reduce){
       html{scroll-behavior:auto}
       .bg .blob, .panel::after, .avatar .ring, .avatar .scan{ animation: none !important; }
@@ -817,7 +768,6 @@
       .media{grid-column: span 12}
       .field input{width: 52vw}
       .theme-fab{ right:12px; bottom:12px; }
-      .view-counter{ right:12px; bottom:64px; }
     }
   </style>
 </head>
@@ -836,14 +786,6 @@
     <input id="themeToggle" type="checkbox" />
     <span class="toggle" aria-hidden="true"></span>
   </label>
-  <div class="view-counter" aria-live="polite">
-    <span class="eye" aria-hidden="true">👁</span>
-    <span class="stack">
-      <span class="count" id="viewCount">0</span>
-      <span class="label">page views</span>
-    </span>
-  </div>
-
   <div class="wrap">
     <section class="hero reveal" id="top">
       <div class="panel hero-left">
@@ -1201,33 +1143,45 @@ return module`
         subtitle: "Server-Authoritative State Replication",
         summary: "My custom state sync framework for server-owned gameplay data. Clients subscribe and receive a snapshot once, then only delta patches, with reactive observers for clean UI updates.",
         code: `local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local StateSyncServer = require(game.ServerScriptService.StateSyncServer)
+local StateSyncClient = require(ReplicatedStorage.StateSync.StateSyncClient)
 
-local sync = StateSyncServer.new(1 / 20)
+-- Server
+local syncServer = StateSyncServer.new(1 / 20)
 
-Players.PlayerAdded:Connect(function(plr)
-  local ch = sync:CreateChannel("Player_" .. plr.UserId, {
+local function defaultState()
+  return {
     Cash = 1000,
     XP = 0,
     Inventory = {},
-  })
-  ch:Subscribe(plr)
+  }
+end
+
+local function giveStarterRewards(state)
+  state.XP += 50
+  table.insert(state.Inventory, { Id = "Medkit", Amount = 1 })
+end
+
+Players.PlayerAdded:Connect(function(player)
+  local channelName = ("Player_%d"):format(player.UserId)
+  local channel = syncServer:CreateChannel(channelName, defaultState())
+  channel:Subscribe(player)
+
   task.delay(2, function()
-    ch:Update(function(state)
-      state.XP += 50
-      table.insert(state.Inventory, { Id = "Medkit", Amount = 1 })
+    channel:Update(function(state)
+      giveStarterRewards(state)
       return state
     end)
   end)
 end)
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StateSyncClient = require(ReplicatedStorage.StateSync.StateSyncClient)
-
+-- Client
 local clientSync = StateSyncClient.new()
-local clientChannel = clientSync:Subscribe("Player_" .. Players.LocalPlayer.UserId)
+local channel = clientSync:Subscribe(("Player_%d"):format(Players.LocalPlayer.UserId))
 
-clientChannel:Observe(function(state)
+channel:Observe(function(state)
   return state.XP
 end, function(xp)
   print("XP updated:", xp)
@@ -1240,7 +1194,6 @@ end)`
         summary: "My data persistence system for player profiles (stats, inventory, settings). Includes session locking, autosave, retry/backoff, and clean versioned migrations to prevent wipes and duplicates.",
         code: `local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 
 local DataVault = {}
 DataVault.__index = DataVault
@@ -1249,12 +1202,12 @@ local function deepCopy(v, seen)
   if type(v) ~= "table" then return v end
   seen = seen or {}
   if seen[v] then return seen[v] end
-  local t = {}
-  seen[v] = t
+  local out = {}
+  seen[v] = out
   for k, val in pairs(v) do
-    t[deepCopy(k, seen)] = deepCopy(val, seen)
+    out[deepCopy(k, seen)] = deepCopy(val, seen)
   end
-  return t
+  return out
 end
 
 local function reconcile(dst, template)
@@ -1263,10 +1216,8 @@ local function reconcile(dst, template)
   for k, tv in pairs(template) do
     if dst[k] == nil then
       dst[k] = deepCopy(tv)
-    else
-      if type(tv) == "table" then
-        dst[k] = reconcile(dst[k], tv)
-      end
+    elseif type(tv) == "table" then
+      dst[k] = reconcile(dst[k], tv)
     end
   end
   return dst
@@ -1276,292 +1227,169 @@ local function now()
   return os.time()
 end
 
+local function key(prefix, userId)
+  return ("%s:%d"):format(prefix, userId)
+end
+
+local function isStale(lock, staleSeconds)
+  return type(lock) ~= "table"
+    or type(lock.ts) ~= "number"
+    or (now() - lock.ts) > staleSeconds
+end
+
 local function backoff(attempt)
-  local a = math.clamp(attempt or 1, 1, 6)
-  return (2 ^ (a - 1)) + math.random()
+  local step = math.clamp(attempt, 1, 6)
+  return (2 ^ (step - 1)) + math.random()
 end
 
-local function keyFromUserId(prefix, userId)
-  return tostring(prefix) .. ":" .. tostring(userId)
-end
-
-local function isStaleLock(lock, staleSeconds)
-  if type(lock) ~= "table" then return true end
-  local ts = tonumber(lock.ts)
-  if not ts then return true end
-  return (now() - ts) > staleSeconds
-end
-
-local function joinError(...)
-  local parts = {}
-  for i = 1, select("#", ...) do
-    parts[i] = tostring(select(i, ...))
-  end
-  return table.concat(parts, " ")
-end
-
-local Profile = {}
-Profile.__index = Profile
-
-function Profile:Get()
-  return self.Data
-end
-
-function Profile:Set(path, value)
-  if type(path) ~= "table" or #path == 0 then
-    self.Data = value
-    self.Dirty = true
-    return
-  end
-  local node = self.Data
-  if type(node) ~= "table" then
-    node = {}
-    self.Data = node
-  end
-  for i = 1, #path - 1 do
-    local k = path[i]
-    local nextNode = node[k]
-    if type(nextNode) ~= "table" then
-      nextNode = {}
-      node[k] = nextNode
-    end
-    node = nextNode
-  end
-  node[path[#path]] = value
-  self.Dirty = true
-end
-
-function Profile:Update(fn)
-  local copy = deepCopy(self.Data)
-  local out = fn(copy)
-  if out ~= nil then copy = out end
-  self.Data = copy
-  self.Dirty = true
-end
-
-function Profile:OnRelease(fn)
-  table.insert(self._releaseHandlers, fn)
-end
-
-function Profile:Release()
-  if self.Released then return end
-  self.Released = true
-  for i = 1, #self._releaseHandlers do
-    task.spawn(self._releaseHandlers[i])
-  end
-end
-
-function DataVault.new(options)
+function DataVault.new(opts)
   local self = setmetatable({}, DataVault)
-  self.StoreName = assert(options and options.StoreName, "StoreName required")
-  self.KeyPrefix = options.KeyPrefix or "profile"
-  self.Template = options.Template or {}
-  self.SaveInterval = options.SaveInterval or 60
-  self.LockStaleSeconds = options.LockStaleSeconds or 120
-  self.MaxRetries = options.MaxRetries or 6
-  self.Version = options.Version or 1
-  self.Migrations = options.Migrations or {}
-  self._store = DataStoreService:GetDataStore(self.StoreName)
-  self._profiles = {}
-  self._closing = false
-  Players.PlayerRemoving:Connect(function(plr)
-    task.spawn(function()
-      self:Release(plr.UserId)
-    end)
+  self.store = DataStoreService:GetDataStore(assert(opts.StoreName, "StoreName required"))
+  self.keyPrefix = opts.KeyPrefix or "profile"
+  self.template = opts.Template or {}
+  self.saveInterval = opts.SaveInterval or 60
+  self.lockStaleSeconds = opts.LockStaleSeconds or 120
+  self.maxRetries = opts.MaxRetries or 6
+  self.version = opts.Version or 1
+  self.migrations = opts.Migrations or {}
+  self.profiles = {}
+  self.closing = false
+
+  Players.PlayerRemoving:Connect(function(player)
+    task.spawn(function() self:Release(player.UserId) end)
   end)
-  game:BindToClose(function()
-    self._closing = true
-    local tasks = {}
-    for userId in pairs(self._profiles) do
-      table.insert(tasks, task.spawn(function()
-        self:Release(userId)
-      end))
-    end
-    local start = os.clock()
-    while os.clock() - start < 8 do
-      local alive = false
-      for _, t in ipairs(tasks) do
-        if coroutine.status(t) ~= "dead" then
-          alive = true
-          break
-        end
-      end
-      if not alive then break end
-      task.wait(0.1)
-    end
-  end)
+
   task.spawn(function()
-    while not self._closing do
-      task.wait(self.SaveInterval)
-      for userId, profile in pairs(self._profiles) do
-        if profile and not profile.Released then
+    while not self.closing do
+      task.wait(self.saveInterval)
+      for userId, profile in pairs(self.profiles) do
+        if profile and profile.dirty then
           self:Save(userId)
         end
       end
     end
   end)
+
+  game:BindToClose(function()
+    self.closing = true
+    for userId in pairs(self.profiles) do
+      self:Release(userId)
+    end
+  end)
+
   return self
 end
 
 function DataVault:_applyMigrations(blob)
   local meta = blob.meta or {}
-  local data = blob.data
+  local data = blob.data or {}
   local fromV = tonumber(meta.v) or 1
-  local toV = self.Version
-  if fromV > toV then
-    meta.v = toV
-    blob.meta = meta
-    return blob
-  end
-  while fromV < toV do
+  while fromV < self.version do
     local nextV = fromV + 1
-    local mig = self.Migrations[nextV]
+    local mig = self.migrations[nextV]
     if type(mig) == "function" then
       local ok, newData = pcall(mig, deepCopy(data))
-      if ok and newData ~= nil then
-        data = newData
-      end
+      if ok and newData ~= nil then data = newData end
     end
     fromV = nextV
   end
-  meta.v = toV
+  meta.v = self.version
   blob.meta = meta
-  blob.data = data
+  blob.data = reconcile(data, self.template)
   return blob
 end
 
-function DataVault:_tryLoad(userId)
-  local key = keyFromUserId(self.KeyPrefix, userId)
-  local jobId = game.JobId == "" and "local" or game.JobId
-  local outBlob
-  local ok, err = pcall(function()
-    outBlob = self._store:UpdateAsync(key, function(old)
-      local blob = old
-      if type(blob) ~= "table" then
-        blob = { meta = {}, data = deepCopy(self.Template) }
-      end
-      blob.meta = blob.meta or {}
-      blob.data = blob.data
-      if type(blob.data) ~= "table" then
-        blob.data = deepCopy(self.Template)
-      end
-      local lock = blob.meta.lock
-      if lock and lock.job and lock.job ~= jobId and not isStaleLock(lock, self.LockStaleSeconds) then
-        return nil
-      end
-      blob = self:_applyMigrations(blob)
-      blob.data = reconcile(blob.data, self.Template)
-      blob.meta.lock = { job = jobId, ts = now() }
-      blob.meta.lastSave = blob.meta.lastSave or now()
-      return blob
-    end)
-  end)
-  if not ok then return false, joinError("UpdateAsync failed:", err) end
-  if outBlob == nil then return false, "Profile is locked by another server" end
-  return true, outBlob
-end
-
-function DataVault:Load(playerOrUserId)
-  local userId = typeof(playerOrUserId) == "Instance" and playerOrUserId.UserId or playerOrUserId
+function DataVault:Load(userId)
   assert(type(userId) == "number", "userId required")
-  if self._profiles[userId] then return self._profiles[userId] end
+  if self.profiles[userId] then return self.profiles[userId] end
+
+  local keyName = key(self.keyPrefix, userId)
+  local jobId = (game.JobId ~= "" and game.JobId) or "local"
   local lastErr
-  for attempt = 1, self.MaxRetries do
-    local ok, res = self:_tryLoad(userId)
-    if ok then
-      local blob = res
-      local profile = setmetatable({}, Profile)
-      profile.UserId = userId
-      profile.Meta = blob.meta or {}
-      profile.Data = blob.data or {}
-      profile.Dirty = false
-      profile.Released = false
-      profile._releaseHandlers = {}
-      self._profiles[userId] = profile
+
+  for attempt = 1, self.maxRetries do
+    local ok, result = pcall(function()
+      return self.store:UpdateAsync(keyName, function(old)
+        local blob = type(old) == "table" and old or { meta = {}, data = deepCopy(self.template) }
+        blob.meta = blob.meta or {}
+        blob.data = type(blob.data) == "table" and blob.data or deepCopy(self.template)
+
+        local lock = blob.meta.lock
+        if lock and lock.job ~= jobId and not isStale(lock, self.lockStaleSeconds) then
+          return nil
+        end
+
+        blob = self:_applyMigrations(blob)
+        blob.meta.lock = { job = jobId, ts = now() }
+        blob.meta.lastSave = now()
+        return blob
+      end)
+    end)
+
+    if ok and result then
+      local profile = {
+        UserId = userId,
+        Data = result.data,
+        Meta = result.meta,
+        dirty = false,
+        Released = false,
+      }
+      self.profiles[userId] = profile
       return profile
-    else
-      lastErr = res
-      task.wait(backoff(attempt))
     end
+
+    lastErr = result
+    task.wait(backoff(attempt))
   end
-  error(joinError("DataVault Load failed for", userId, ":", lastErr))
+
+  error(("DataVault Load failed for %d: %s"):format(userId, tostring(lastErr)))
 end
 
-function DataVault:_trySave(userId, releaseLock)
-  local profile = self._profiles[userId]
-  if not profile then return true end
-  if not profile.Dirty and not releaseLock then return true end
-  local key = keyFromUserId(self.KeyPrefix, userId)
-  local jobId = game.JobId == "" and "local" or game.JobId
+function DataVault:Save(userId, releaseLock)
+  local profile = self.profiles[userId]
+  if not profile or (not profile.dirty and not releaseLock) then return true end
+
+  local keyName = key(self.keyPrefix, userId)
+  local jobId = (game.JobId ~= "" and game.JobId) or "local"
+
   local ok, err = pcall(function()
-    self._store:UpdateAsync(key, function(old)
-      local blob = old
-      if type(blob) ~= "table" then
-        blob = { meta = {}, data = {} }
-      end
+    self.store:UpdateAsync(keyName, function(old)
+      local blob = type(old) == "table" and old or { meta = {}, data = {} }
       blob.meta = blob.meta or {}
-      blob.data = blob.data
-      local lock = blob.meta.lock
-      if type(lock) ~= "table" or lock.job ~= jobId then
+      if type(blob.meta.lock) ~= "table" or blob.meta.lock.job ~= jobId then
         return nil
       end
+
       blob = self:_applyMigrations(blob)
       blob.data = deepCopy(profile.Data)
       blob.meta.lastSave = now()
-      if releaseLock then
-        blob.meta.lock = nil
-      else
-        blob.meta.lock = { job = jobId, ts = now() }
-      end
+      blob.meta.lock = releaseLock and nil or { job = jobId, ts = now() }
       return blob
     end)
   end)
-  if not ok then return false, joinError("Save UpdateAsync failed:", err) end
-  profile.Dirty = false
+
+  if not ok then return false, err end
+  profile.dirty = false
   return true
 end
 
-function DataVault:Save(playerOrUserId)
-  local userId = typeof(playerOrUserId) == "Instance" and playerOrUserId.UserId or playerOrUserId
-  assert(type(userId) == "number", "userId required")
-  local lastErr
-  for attempt = 1, self.MaxRetries do
-    local ok, err = self:_trySave(userId, false)
-    if ok then
-      return true
-    else
-      lastErr = err
-      task.wait(backoff(attempt))
-    end
-  end
-  return false, lastErr
+function DataVault:Update(userId, fn)
+  local profile = self.profiles[userId]
+  if not profile then return end
+  local copy = deepCopy(profile.Data)
+  local out = fn(copy)
+  if out ~= nil then copy = out end
+  profile.Data = copy
+  profile.dirty = true
 end
 
-function DataVault:Release(playerOrUserId)
-  local userId = typeof(playerOrUserId) == "Instance" and playerOrUserId.UserId or playerOrUserId
-  assert(type(userId) == "number", "userId required")
-  local profile = self._profiles[userId]
-  if not profile then return true end
-  local lastErr
-  for attempt = 1, self.MaxRetries do
-    local ok, err = self:_trySave(userId, true)
-    if ok then
-      profile:Release()
-      self._profiles[userId] = nil
-      return true
-    else
-      lastErr = err
-      task.wait(backoff(attempt))
-    end
+function DataVault:Release(userId)
+  self:Save(userId, true)
+  local profile = self.profiles[userId]
+  if profile then
+    profile.Released = true
+    self.profiles[userId] = nil
   end
-  profile:Release()
-  self._profiles[userId] = nil
-  return false, lastErr
-end
-
-function DataVault:GetProfile(playerOrUserId)
-  local userId = typeof(playerOrUserId) == "Instance" and playerOrUserId.UserId or playerOrUserId
-  return self._profiles[userId]
 end
 
 return DataVault`
@@ -1577,167 +1405,168 @@ local Players = game:GetService("Players")
 local NetGuard = {}
 NetGuard.__index = NetGuard
 
-local function ensureFolder()
-  local f = ReplicatedStorage:FindFirstChild("NetGuard")
-  if f and f:IsA("Folder") then return f end
-  f = Instance.new("Folder")
-  f.Name = "NetGuard"
-  f.Parent = ReplicatedStorage
-  return f
+local function getFolder()
+  local folder = ReplicatedStorage:FindFirstChild("NetGuard")
+  if folder and folder:IsA("Folder") then return folder end
+  folder = Instance.new("Folder")
+  folder.Name = "NetGuard"
+  folder.Parent = ReplicatedStorage
+  return folder
 end
 
-local function deepCopy(v, seen)
-  if type(v) ~= "table" then return v end
-  seen = seen or {}
-  if seen[v] then return seen[v] end
-  local t = {}
-  seen[v] = t
-  for k, val in pairs(v) do
-    t[deepCopy(k, seen)] = deepCopy(val, seen)
-  end
-  return t
-end
-
-local function rateLimiterNew(rate, burst)
+local function tokenBucket(rate, burst)
   return { rate = rate, burst = burst, tokens = burst, last = os.clock() }
 end
 
-local function rateAllow(rl)
-  local t = os.clock()
-  local dt = t - rl.last
-  rl.last = t
-  rl.tokens = math.min(rl.burst, rl.tokens + dt * rl.rate)
-  if rl.tokens >= 1 then
-    rl.tokens -= 1
-    return true
-  end
-  return false
+local function allow(bucket)
+  local now = os.clock()
+  local dt = now - bucket.last
+  bucket.last = now
+  bucket.tokens = math.min(bucket.burst, bucket.tokens + dt * bucket.rate)
+  if bucket.tokens < 1 then return false end
+  bucket.tokens -= 1
+  return true
 end
 
-local function mkErr(code, msg)
-  return { ok = false, code = code, message = msg }
+local function err(code, message)
+  return { ok = false, code = code, message = message }
 end
 
 local function validate(schema, value, path)
   path = path or ""
-  if schema == nil then return true end
-  local st = schema.t
-  if st == "any" or st == nil then return true end
-  if st == "string" then
-    if type(value) ~= "string" then return false, mkErr("type", path .. " expected string") end
-    if schema.min and #value < schema.min then return false, mkErr("min", path .. " too short") end
-    if schema.max and #value > schema.max then return false, mkErr("max", path .. " too long") end
+  if not schema or schema.t == "any" then return true end
+
+  local t = schema.t
+  if t == "string" then
+    if type(value) ~= "string" then return false, err("type", path .. " expected string") end
+    if schema.min and #value < schema.min then return false, err("min", path .. " too short") end
+    if schema.max and #value > schema.max then return false, err("max", path .. " too long") end
     if schema.enum then
-      local ok = false
       for i = 1, #schema.enum do
-        if value == schema.enum[i] then
-          ok = true
-          break
-        end
+        if value == schema.enum[i] then return true end
       end
-      if not ok then return false, mkErr("enum", path .. " invalid value") end
+      return false, err("enum", path .. " invalid value")
     end
     return true
   end
-  if st == "number" then
-    if type(value) ~= "number" then return false, mkErr("type", path .. " expected number") end
-    if schema.min and value < schema.min then return false, mkErr("min", path .. " too small") end
-    if schema.max and value > schema.max then return false, mkErr("max", path .. " too large") end
+
+  if t == "number" then
+    if type(value) ~= "number" then return false, err("type", path .. " expected number") end
+    if schema.min and value < schema.min then return false, err("min", path .. " too small") end
+    if schema.max and value > schema.max then return false, err("max", path .. " too large") end
     return true
   end
-  if st == "boolean" then
-    if type(value) ~= "boolean" then return false, mkErr("type", path .. " expected boolean") end
+
+  if t == "boolean" then
+    if type(value) ~= "boolean" then return false, err("type", path .. " expected boolean") end
     return true
   end
-  if st == "table" then
-    if type(value) ~= "table" then return false, mkErr("type", path .. " expected table") end
-    return true
-  end
-  if st == "array" then
-    if type(value) ~= "table" then return false, mkErr("type", path .. " expected array") end
-    local item = schema.item
-    local count = 0
-    for k, v in pairs(value) do
-      if type(k) ~= "number" then return false, mkErr("array", path .. " non-numeric key") end
-      count += 1
-      local ok, e = validate(item, v, path .. "[" .. tostring(k) .. "]")
-      if not ok then return false, e end
-    end
-    if schema.min and count < schema.min then return false, mkErr("min", path .. " not enough items") end
-    if schema.max and count > schema.max then return false, mkErr("max", path .. " too many items") end
-    return true
-  end
-  if st == "object" then
-    if type(value) ~= "table" then return false, mkErr("type", path .. " expected object") end
+
+  if t == "object" then
+    if type(value) ~= "table" then return false, err("type", path .. " expected object") end
     local shape = schema.shape or {}
     for key, subSchema in pairs(shape) do
       local v = value[key]
       if v == nil then
-        if not subSchema.optional then return false, mkErr("missing", (path .. "." .. tostring(key)) .. " missing") end
+        if not subSchema.optional then return false, err("missing", path .. "." .. key .. " missing") end
       else
-        local ok, e = validate(subSchema, v, path .. "." .. tostring(key))
+        local ok, e = validate(subSchema, v, path .. "." .. key)
         if not ok then return false, e end
       end
     end
     if schema.strict then
       for k in pairs(value) do
-        if shape[k] == nil then return false, mkErr("strict", path .. " unknown key " .. tostring(k)) end
+        if shape[k] == nil then return false, err("strict", path .. " unknown key " .. tostring(k)) end
       end
     end
     return true
   end
-  return false, mkErr("schema", path .. " unknown schema")
+
+  if t == "array" then
+    if type(value) ~= "table" then return false, err("type", path .. " expected array") end
+    local item = schema.item
+    local count = 0
+    for k, v in pairs(value) do
+      if type(k) ~= "number" then return false, err("array", path .. " non-numeric key") end
+      count += 1
+      local ok, e = validate(item, v, path .. "[" .. tostring(k) .. "]")
+      if not ok then return false, e end
+    end
+    if schema.min and count < schema.min then return false, err("min", path .. " not enough items") end
+    if schema.max and count > schema.max then return false, err("max", path .. " too many items") end
+    return true
+  end
+
+  if t == "table" then
+    if type(value) ~= "table" then return false, err("type", path .. " expected table") end
+    return true
+  end
+
+  return false, err("schema", path .. " unknown schema")
 end
 
 function NetGuard.new()
   local self = setmetatable({}, NetGuard)
-  self._folder = ensureFolder()
-  self._endpoints = {}
-  self._rl = {}
-  Players.PlayerRemoving:Connect(function(plr)
-    self._rl[plr] = nil
+  self.folder = getFolder()
+  self.endpoints = {}
+  self.rateLimits = {}
+  Players.PlayerRemoving:Connect(function(player)
+    self.rateLimits[player] = nil
   end)
   return self
+end
+
+local function getLimiter(self, player, name, rate, burst)
+  self.rateLimits[player] = self.rateLimits[player] or {}
+  local limiter = self.rateLimits[player][name]
+  if not limiter then
+    limiter = tokenBucket(rate, burst)
+    self.rateLimits[player][name] = limiter
+  end
+  return limiter
 end
 
 function NetGuard:CreateRequest(name, schema, handler, opts)
   assert(type(name) == "string" and #name > 0, "name required")
   assert(type(handler) == "function", "handler required")
   opts = opts or {}
-  local rf = self._folder:FindFirstChild(name)
+
+  local rf = self.folder:FindFirstChild(name)
   if rf then rf:Destroy() end
   rf = Instance.new("RemoteFunction")
   rf.Name = name
-  rf.Parent = self._folder
+  rf.Parent = self.folder
+
   local rate = opts.ratePerSecond or 10
   local burst = opts.burst or math.max(10, rate)
   local permission = opts.permission
-  self._endpoints[name] = { kind = "rf", schema = schema, handler = handler, opts = opts }
+
+  self.endpoints[name] = { kind = "rf", schema = schema, handler = handler, opts = opts }
+
   rf.OnServerInvoke = function(player, payload)
-    self._rl[player] = self._rl[player] or {}
-    local rl = self._rl[player][name]
-    if not rl then
-      rl = rateLimiterNew(rate, burst)
-      self._rl[player][name] = rl
-    end
-    if not rateAllow(rl) then return mkErr("rate", "rate limited") end
+    local limiter = getLimiter(self, player, name, rate, burst)
+    if not allow(limiter) then return err("rate", "rate limited") end
+
     local ok, e = validate(schema, payload, name)
     if not ok then return e end
+
     if type(permission) == "function" then
-      local allowed
-      local psucc = pcall(function()
+      local allowed = false
+      local success = pcall(function()
         allowed = permission(player, payload)
       end)
-      if not psucc then return mkErr("permission", "permission check failed") end
-      if not allowed then return mkErr("permission", "not allowed") end
+      if not success then return err("permission", "permission check failed") end
+      if not allowed then return err("permission", "not allowed") end
     end
+
     local result
-    local hs = pcall(function()
+    local success = pcall(function()
       result = handler(player, payload)
     end)
-    if not hs then return mkErr("server", "handler error") end
+    if not success then return err("server", "handler error") end
     return { ok = true, data = result }
   end
+
   return rf
 end
 
@@ -1745,195 +1574,37 @@ function NetGuard:CreateEvent(name, schema, handler, opts)
   assert(type(name) == "string" and #name > 0, "name required")
   assert(type(handler) == "function", "handler required")
   opts = opts or {}
-  local re = self._folder:FindFirstChild(name)
+
+  local re = self.folder:FindFirstChild(name)
   if re then re:Destroy() end
   re = Instance.new("RemoteEvent")
   re.Name = name
-  re.Parent = self._folder
+  re.Parent = self.folder
+
   local rate = opts.ratePerSecond or 15
   local burst = opts.burst or math.max(15, rate)
   local permission = opts.permission
-  self._endpoints[name] = { kind = "re", schema = schema, handler = handler, opts = opts }
+
+  self.endpoints[name] = { kind = "re", schema = schema, handler = handler, opts = opts }
+
   re.OnServerEvent:Connect(function(player, payload)
-    self._rl[player] = self._rl[player] or {}
-    local rl = self._rl[player][name]
-    if not rl then
-      rl = rateLimiterNew(rate, burst)
-      self._rl[player][name] = rl
-    end
-    if not rateAllow(rl) then return end
+    local limiter = getLimiter(self, player, name, rate, burst)
+    if not allow(limiter) then return end
+
     local ok = validate(schema, payload, name)
     if not ok then return end
+
     if type(permission) == "function" then
-      local allowed
-      local psucc = pcall(function()
+      local allowed = false
+      local success = pcall(function()
         allowed = permission(player, payload)
       end)
-      if not psucc or not allowed then return end
+      if not success or not allowed then return end
     end
+
     task.spawn(handler, player, payload)
   end)
-  return re
-end
 
-=======
-end
-
-local function validate(schema, value, path)
-  path = path or ""
-  if schema == nil then return true end
-  local st = schema.t
-  if st == "any" or st == nil then return true end
-  if st == "string" then
-    if type(value) ~= "string" then return false, mkErr("type", path .. " expected string") end
-    if schema.min and #value < schema.min then return false, mkErr("min", path .. " too short") end
-    if schema.max and #value > schema.max then return false, mkErr("max", path .. " too long") end
-    if schema.enum then
-      local ok = false
-      for i = 1, #schema.enum do
-        if value == schema.enum[i] then
-          ok = true
-          break
-        end
-      end
-      if not ok then return false, mkErr("enum", path .. " invalid value") end
-    end
-    return true
-  end
-  if st == "number" then
-    if type(value) ~= "number" then return false, mkErr("type", path .. " expected number") end
-    if schema.min and value < schema.min then return false, mkErr("min", path .. " too small") end
-    if schema.max and value > schema.max then return false, mkErr("max", path .. " too large") end
-    return true
-  end
-  if st == "boolean" then
-    if type(value) ~= "boolean" then return false, mkErr("type", path .. " expected boolean") end
-    return true
-  end
-  if st == "table" then
-    if type(value) ~= "table" then return false, mkErr("type", path .. " expected table") end
-    return true
-  end
-  if st == "array" then
-    if type(value) ~= "table" then return false, mkErr("type", path .. " expected array") end
-    local item = schema.item
-    local count = 0
-    for k, v in pairs(value) do
-      if type(k) ~= "number" then return false, mkErr("array", path .. " non-numeric key") end
-      count += 1
-      local ok, e = validate(item, v, path .. "[" .. tostring(k) .. "]")
-      if not ok then return false, e end
-    end
-    if schema.min and count < schema.min then return false, mkErr("min", path .. " not enough items") end
-    if schema.max and count > schema.max then return false, mkErr("max", path .. " too many items") end
-    return true
-  end
-  if st == "object" then
-    if type(value) ~= "table" then return false, mkErr("type", path .. " expected object") end
-    local shape = schema.shape or {}
-    for key, subSchema in pairs(shape) do
-      local v = value[key]
-      if v == nil then
-        if not subSchema.optional then return false, mkErr("missing", (path .. "." .. tostring(key)) .. " missing") end
-      else
-        local ok, e = validate(subSchema, v, path .. "." .. tostring(key))
-        if not ok then return false, e end
-      end
-    end
-    if schema.strict then
-      for k in pairs(value) do
-        if shape[k] == nil then return false, mkErr("strict", path .. " unknown key " .. tostring(k)) end
-      end
-    end
-    return true
-  end
-  return false, mkErr("schema", path .. " unknown schema")
-end
-
-function NetGuard.new()
-  local self = setmetatable({}, NetGuard)
-  self._folder = ensureFolder()
-  self._endpoints = {}
-  self._rl = {}
-  Players.PlayerRemoving:Connect(function(plr)
-    self._rl[plr] = nil
-  end)
-  return self
-end
-
-function NetGuard:CreateRequest(name, schema, handler, opts)
-  assert(type(name) == "string" and #name > 0, "name required")
-  assert(type(handler) == "function", "handler required")
-  opts = opts or {}
-  local rf = self._folder:FindFirstChild(name)
-  if rf then rf:Destroy() end
-  rf = Instance.new("RemoteFunction")
-  rf.Name = name
-  rf.Parent = self._folder
-  local rate = opts.ratePerSecond or 10
-  local burst = opts.burst or math.max(10, rate)
-  local permission = opts.permission
-  self._endpoints[name] = { kind = "rf", schema = schema, handler = handler, opts = opts }
-  rf.OnServerInvoke = function(player, payload)
-    self._rl[player] = self._rl[player] or {}
-    local rl = self._rl[player][name]
-    if not rl then
-      rl = rateLimiterNew(rate, burst)
-      self._rl[player][name] = rl
-    end
-    if not rateAllow(rl) then return mkErr("rate", "rate limited") end
-    local ok, e = validate(schema, payload, name)
-    if not ok then return e end
-    if type(permission) == "function" then
-      local allowed
-      local psucc = pcall(function()
-        allowed = permission(player, payload)
-      end)
-      if not psucc then return mkErr("permission", "permission check failed") end
-      if not allowed then return mkErr("permission", "not allowed") end
-    end
-    local result
-    local hs = pcall(function()
-      result = handler(player, payload)
-    end)
-    if not hs then return mkErr("server", "handler error") end
-    return { ok = true, data = result }
-  end
-  return rf
-end
-
-function NetGuard:CreateEvent(name, schema, handler, opts)
-  assert(type(name) == "string" and #name > 0, "name required")
-  assert(type(handler) == "function", "handler required")
-  opts = opts or {}
-  local re = self._folder:FindFirstChild(name)
-  if re then re:Destroy() end
-  re = Instance.new("RemoteEvent")
-  re.Name = name
-  re.Parent = self._folder
-  local rate = opts.ratePerSecond or 15
-  local burst = opts.burst or math.max(15, rate)
-  local permission = opts.permission
-  self._endpoints[name] = { kind = "re", schema = schema, handler = handler, opts = opts }
-  re.OnServerEvent:Connect(function(player, payload)
-    self._rl[player] = self._rl[player] or {}
-    local rl = self._rl[player][name]
-    if not rl then
-      rl = rateLimiterNew(rate, burst)
-      self._rl[player][name] = rl
-    end
-    if not rateAllow(rl) then return end
-    local ok = validate(schema, payload, name)
-    if not ok then return end
-    if type(permission) == "function" then
-      local allowed
-      local psucc = pcall(function()
-        allowed = permission(player, payload)
-      end)
-      if not psucc or not allowed then return end
-    end
-    task.spawn(handler, player, payload)
-  end)
   return re
 end
 
@@ -2172,7 +1843,6 @@ return NetGuard`
     }
 
     const toggle = document.getElementById("themeToggle")
-    const viewCountEl = document.getElementById("viewCount")
     const root = document.documentElement
 
     function applyTheme(theme){
@@ -2189,11 +1859,6 @@ return NetGuard`
     if (saved === "light" || saved === "dark") applyTheme(saved)
     else applyTheme("dark")
 
-    if (viewCountEl){
-      const current = Number(localStorage.getItem("viewCount") || "0") + 1
-      localStorage.setItem("viewCount", String(current))
-      viewCountEl.textContent = current.toLocaleString()
-    }
     sendViewPing()
 
     if ("scrollRestoration" in history){
