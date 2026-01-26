@@ -180,14 +180,6 @@
 
     .wrap{max-width:var(--container);margin:0 auto;padding:22px 18px 72px}
 
-
-    <section class="section reveal" id="discord">
-  <div class="discord-embed">
-    <div class="top">zrxckss portfolio</div>
-    <img class="img" src="media/discord.png" alt="Discord embed image">
-  </div>
-</section>
-
     .btn{
       display:inline-flex; align-items:center; justify-content:center;
       gap:10px;
@@ -302,6 +294,28 @@
     }
     .badges{display:flex; flex-wrap:wrap; gap:10px; margin:12px 0 16px}
     .hero-cta{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+    .hero-cta .btn.primary{
+      border-color: rgba(255,255,255,.22);
+      background:
+        radial-gradient(260px 200px at 18% 20%, rgba(122,162,255,.32), transparent 60%),
+        radial-gradient(240px 200px at 80% 30%, rgba(57,213,255,.24), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.18));
+      box-shadow: 0 16px 36px rgba(0,0,0,.32);
+    }
+    .hero-cta .btn.primary:hover{
+      background:
+        radial-gradient(280px 220px at 18% 20%, rgba(122,162,255,.38), transparent 62%),
+        radial-gradient(260px 220px at 80% 30%, rgba(57,213,255,.30), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(0,0,0,.20));
+    }
+    [data-theme="light"] .hero-cta .btn.primary{
+      border-color: rgba(15,20,27,.14);
+      background:
+        radial-gradient(260px 200px at 18% 20%, rgba(122,162,255,.28), transparent 60%),
+        radial-gradient(240px 200px at 80% 30%, rgba(57,213,255,.22), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.95), rgba(235,238,245,.90));
+      box-shadow: 0 14px 30px rgba(0,0,0,.12);
+    }
 
     .hero-right{display:flex; flex-direction:column;}
     .profile{
@@ -736,18 +750,53 @@
     }
     .theme-fab input:checked + .toggle::before{ transform: translateX(24px); }
     .view-counter{
-  background: transparent;
-  border: 0;
-  backdrop-filter: none;
-  box-shadow: none;
-  padding: 0;
-}
-[data-theme="light"] .view-counter{
-  background: transparent;
-  box-shadow: none;
-}
-
-    .view-counter .eye{font-size:14px}
+      position:fixed;
+      right:18px;
+      bottom:70px;
+      z-index:30;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid var(--border2);
+      background: rgba(0,0,0,.20);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 40px rgba(0,0,0,.30);
+      color: var(--text);
+      font-weight:900;
+      user-select:none;
+    }
+    [data-theme="light"] .view-counter{
+      background: rgba(255,255,255,.70);
+      box-shadow: 0 14px 34px rgba(0,0,0,.10);
+    }
+    .view-counter .eye{
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--border);
+      font-size:14px;
+    }
+    [data-theme="light"] .view-counter .eye{ background: rgba(0,0,0,.05); }
+    .view-counter .stack{
+      display:flex;
+      flex-direction:column;
+      line-height:1.05;
+    }
+    .view-counter .count{
+      font-size:14px;
+      letter-spacing:.2px;
+    }
+    .view-counter .label{
+      font-size:11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing:.6px;
+    }
 
     @media (prefers-reduced-motion: reduce){
       html{scroll-behavior:auto}
@@ -789,8 +838,10 @@
   </label>
   <div class="view-counter" aria-live="polite">
     <span class="eye" aria-hidden="true">👁</span>
-    <span id="viewCount">0</span>
-    <span>views</span>
+    <span class="stack">
+      <span class="count" id="viewCount">0</span>
+      <span class="label">page views</span>
+    </span>
   </div>
 
   <div class="wrap">
@@ -809,6 +860,7 @@
           <div class="badges">
             <div class="pill"><span class="dot"></span><span>Lua/U</span></div>
             <div class="pill"><span class="dot"></span><span>Java</span></div>
+            <div class="pill"><span class="dot"></span><span>CSharp</span></div>
             <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(122,162,255,.95))"></span><span>UI/UX</span></div>
             <div class="pill"><span class="dot" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(57,213,255,.95))"></span><span>Fivem</span></div>
             <div class="pill"><span class="dot"></span><span>RagePluginHook</span></div>     
@@ -849,6 +901,13 @@
             Discord: <span style="color:var(--text); font-weight:950">ssisisisisisilent</span>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="discord">
+      <div class="discord-embed">
+        <div class="top">zrxckss portfolio</div>
+        <img class="img" src="media/discord.png" alt="Discord embed image">
       </div>
     </section>
 
