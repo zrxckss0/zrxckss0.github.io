@@ -1405,26 +1405,17 @@ local Players = game:GetService("Players")
 local NetGuard = {}
 NetGuard.__index = NetGuard
 
-local function getFolder()
-  local folder = ReplicatedStorage:FindFirstChild("NetGuard")
-  if folder and folder:IsA("Folder") then return folder end
-  folder = Instance.new("Folder")
-  folder.Name = "NetGuard"
-  folder.Parent = ReplicatedStorage
-  return folder
-end
-
-local function tokenBucket(rate, burst)
+local function newLimiter(rate, burst)
   return { rate = rate, burst = burst, tokens = burst, last = os.clock() }
 end
 
-local function allow(bucket)
+local function allow(limiter)
   local now = os.clock()
-  local dt = now - bucket.last
-  bucket.last = now
-  bucket.tokens = math.min(bucket.burst, bucket.tokens + dt * bucket.rate)
-  if bucket.tokens < 1 then return false end
-  bucket.tokens -= 1
+  local dt = now - limiter.last
+  limiter.last = now
+  limiter.tokens = math.min(limiter.burst, limiter.tokens + dt * limiter.rate)
+  if limiter.tokens < 1 then return false end
+  limiter.tokens -= 1
   return true
 end
 
@@ -1507,22 +1498,39 @@ end
 
 function NetGuard.new()
   local self = setmetatable({}, NetGuard)
-  self.folder = getFolder()
+
+  local folder = ReplicatedStorage:FindFirstChild("NetGuard")
+  if not folder or not folder:IsA("Folder") then
+    if folder then folder:Destroy() end
+    folder = Instance.new("Folder")
+    folder.Name = "NetGuard"
+    folder.Parent = ReplicatedStorage
+  end
+
+  self.folder = folder
   self.endpoints = {}
-  self.rateLimits = {}
+  self.rateLimiters = {}
+
   Players.PlayerRemoving:Connect(function(player)
-    self.rateLimits[player] = nil
+    self.rateLimiters[player] = nil
   end)
+
   return self
 end
 
 local function getLimiter(self, player, name, rate, burst)
-  self.rateLimits[player] = self.rateLimits[player] or {}
-  local limiter = self.rateLimits[player][name]
-  if not limiter then
-    limiter = tokenBucket(rate, burst)
-    self.rateLimits[player][name] = limiter
+  local perPlayer = self.rateLimiters[player]
+  if not perPlayer then
+    perPlayer = {}
+    self.rateLimiters[player] = perPlayer
   end
+
+  local limiter = perPlayer[name]
+  if not limiter then
+    limiter = newLimiter(rate, burst)
+    perPlayer[name] = limiter
+  end
+
   return limiter
 end
 
