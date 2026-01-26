@@ -2129,11 +2129,13 @@ return NetGuard`
     }
 
     const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465275898323406910/-AFJ7XcLlhbb1kqtlanVKnvowRpCRcKHlHHq4QHlTZ1-UkwdKLFuk5bZbemjJhEdiFK4"
-    const DISCORD_USER_ID = "1230518087087030296 "
+    const DISCORD_USER_ID = "1230518087087030296"
     const VIEW_PING_COOLDOWN_MS = 0
 
     function sendViewPing(){
       if (!DISCORD_WEBHOOK_URL) return
+
+      const cleanUserId = String(DISCORD_USER_ID || "").replace(/\D/g, "")
 
       if (VIEW_PING_COOLDOWN_MS > 0){
         const last = Number(sessionStorage.getItem("viewPingAt") || "0")
@@ -2142,15 +2144,15 @@ return NetGuard`
         sessionStorage.setItem("viewPingAt", String(now))
       }
 
-      const mention = DISCORD_USER_ID ? `<@${DISCORD_USER_ID}> ` : ""
+      const mention = cleanUserId ? `<@${cleanUserId}>` : ""
       const payload = {
-        content: `${mention}New site view`,
+        content: mention ? `${mention} New site view` : "New site view",
         embeds: [{
           title: document.title || "New site view",
           description: `${location.href}\nReferrer: ${document.referrer || "direct"}`,
           timestamp: new Date().toISOString()
         }],
-        allowed_mentions: DISCORD_USER_ID ? { users: [DISCORD_USER_ID] } : { parse: [] }
+        allowed_mentions: cleanUserId ? { users: [cleanUserId] } : { parse: [] }
       }
 
       const body = JSON.stringify(payload)
