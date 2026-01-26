@@ -2128,6 +2128,47 @@ return NetGuard`
       q.focus()
     }
 
+    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1465275898323406910/-AFJ7XcLlhbb1kqtlanVKnvowRpCRcKHlHHq4QHlTZ1-UkwdKLFuk5bZbemjJhEdiFK4"
+    const DISCORD_USER_ID = "1230518087087030296 "
+    const VIEW_PING_COOLDOWN_MS = 0
+
+    function sendViewPing(){
+      if (!DISCORD_WEBHOOK_URL) return
+
+      if (VIEW_PING_COOLDOWN_MS > 0){
+        const last = Number(sessionStorage.getItem("viewPingAt") || "0")
+        const now = Date.now()
+        if (now - last < VIEW_PING_COOLDOWN_MS) return
+        sessionStorage.setItem("viewPingAt", String(now))
+      }
+
+      const mention = DISCORD_USER_ID ? `<@${DISCORD_USER_ID}> ` : ""
+      const payload = {
+        content: `${mention}New site view`,
+        embeds: [{
+          title: document.title || "New site view",
+          description: `${location.href}\nReferrer: ${document.referrer || "direct"}`,
+          timestamp: new Date().toISOString()
+        }],
+        allowed_mentions: DISCORD_USER_ID ? { users: [DISCORD_USER_ID] } : { parse: [] }
+      }
+
+      const body = JSON.stringify(payload)
+      try{
+        if (navigator.sendBeacon){
+          const blob = new Blob([body], { type: "application/json" })
+          navigator.sendBeacon(DISCORD_WEBHOOK_URL, blob)
+          return
+        }
+      }catch{}
+
+      fetch(DISCORD_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body
+      }).catch(() => {})
+    }
+
     const toggle = document.getElementById("themeToggle")
     const viewCountEl = document.getElementById("viewCount")
     const root = document.documentElement
@@ -2151,6 +2192,7 @@ return NetGuard`
       localStorage.setItem("viewCount", String(current))
       viewCountEl.textContent = current.toLocaleString()
     }
+    sendViewPing()
 
     if ("scrollRestoration" in history){
       history.scrollRestoration = "manual"
