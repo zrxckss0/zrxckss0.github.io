@@ -1821,6 +1821,9 @@ return NetGuard`
       if (!DISCORD_WEBHOOK_URL) return
 
       const cleanUserId = String(DISCORD_USER_ID || "").replace(/\D/g, "")
+      const params = new URLSearchParams(window.location.search)
+      const linkId = (params.get("link_id") || "").trim()
+      const linkLabel = linkId ? `Link ID: ${linkId}` : ""
 
       if (VIEW_PING_COOLDOWN_MS > 0){
         const last = Number(sessionStorage.getItem("viewPingAt") || "0")
@@ -1831,10 +1834,12 @@ return NetGuard`
 
       const mention = cleanUserId ? `<@${cleanUserId}>` : ""
       const payload = {
-        content: mention ? `${mention} New site view` : "New site view",
+        content: linkLabel
+          ? (mention ? `${mention} Link viewed (${linkLabel})` : `Link viewed (${linkLabel})`)
+          : (mention ? `${mention} New site view` : "New site view"),
         embeds: [{
           title: document.title || "New site view",
-          description: `${location.href}\nReferrer: ${document.referrer || "direct"}`,
+          description: `${location.href}\n${linkLabel ? `${linkLabel}\n` : ""}Referrer: ${document.referrer || "direct"}`,
           timestamp: new Date().toISOString()
         }],
         allowed_mentions: cleanUserId ? { users: [cleanUserId] } : { parse: [] }
