@@ -518,13 +518,10 @@
       font-size:1.15rem;
       letter-spacing:-.02em;
     }
-    .media-subhead p{
-      margin:0;
-      color:var(--muted2);
-      font-weight:800;
-    }
     .roblox-card{
       grid-column: span 12;
+      width:min(900px, 100%);
+      margin-inline:auto;
       border-radius: calc(var(--radius) + 6px);
       border:1px solid var(--border);
       background:
@@ -541,7 +538,7 @@
     }
     .roblox-media{
       position:relative;
-      min-height:320px;
+      min-height:240px;
       overflow:hidden;
       background: linear-gradient(180deg, rgba(22,28,40,.96), rgba(10,12,18,.98));
     }
@@ -569,7 +566,7 @@
     .roblox-overlay h3{
       margin:0;
       color:#fff;
-      font-size:clamp(1.5rem, 2vw, 2.1rem);
+      font-size:clamp(1.2rem, 1.8vw, 1.6rem);
       line-height:1;
       letter-spacing:-.02em;
       text-shadow: 0 10px 30px rgba(0,0,0,.45);
@@ -586,26 +583,25 @@
       gap:8px;
     }
     .roblox-chip{
-      padding:9px 12px;
+      padding:8px 10px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
       background: rgba(7,8,10,.58);
       color:#fff;
-      font-size:.84rem;
+      font-size:.78rem;
       font-weight:900;
       letter-spacing:.02em;
       backdrop-filter: blur(10px);
     }
     .roblox-body{
-      padding:16px 18px 18px;
-      display:grid;
-      gap:12px;
+      padding:14px 14px 16px;
+      color:var(--muted);
+      font-weight:750;
+      line-height:1.6;
+      font-size:1rem;
     }
     .roblox-summary{
-      color:var(--muted);
-      font-size:1rem;
-      font-weight:820;
-      line-height:1.5;
+      margin-bottom:10px;
     }
     .roblox-actions{
       display:flex;
@@ -819,7 +815,7 @@
       .hero{grid-template-columns: 1fr; gap:14px}
       .card{grid-column: span 12}
       .roblox-card{grid-column: span 12}
-      .roblox-media{min-height:260px}
+      .roblox-media{min-height:220px}
       .media{grid-column: span 6}
     }
     @media (max-width: 640px){
@@ -931,11 +927,6 @@
       </div>
 
       <div class="roblox-grid" id="robloxGameCards"></div>
-
-      <div class="media-subhead">
-        <h3>Other Media</h3>
-        <p>Past demos, screenshots, and gameplay clips.</p>
-      </div>
 
       <div class="media-grid">
         <div class="media">
