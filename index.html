@@ -536,7 +536,7 @@
     }
     .roblox-media{
       position:relative;
-      min-height:200px;
+      min-height:170px;
       overflow:hidden;
       background: linear-gradient(180deg, rgba(22,28,40,.96), rgba(10,12,18,.98));
     }
@@ -591,16 +591,7 @@
       letter-spacing:.02em;
       backdrop-filter: blur(10px);
     }
-    .roblox-body{
-      padding:14px 14px 16px;
-      color:var(--muted);
-      font-weight:750;
-      line-height:1.6;
-      font-size:1rem;
-    }
-    .roblox-summary{
-      margin:0;
-    }
+    .roblox-body{display:none;}
     .roblox-empty{
       grid-column: 1 / -1;
       padding:18px;
@@ -802,13 +793,12 @@
       .hero{grid-template-columns: 1fr; gap:14px}
       .card{grid-column: span 12}
       .roblox-card{grid-column: span 12}
-      .roblox-media{min-height:180px}
+      .roblox-media{min-height:150px}
       .media{grid-column: span 6}
     }
     @media (max-width: 640px){
-      .roblox-media{min-height:220px}
+      .roblox-media{min-height:140px}
       .roblox-overlay h3{font-size:1.28rem}
-      .roblox-actions{flex-direction:column;align-items:flex-start}
       .media{grid-column: span 12}
       .field input{width: 52vw}
     }
@@ -1805,12 +1795,10 @@ return NetGuard`
                   <div class="roblox-chip-row">
                     <span class="roblox-chip" title="${fullPlaying} players">CCU ${playing}</span>
                     <span class="roblox-chip" title="${fullVisits} visits">Visits ${visits}</span>
+                    <span class="roblox-chip">${summary}</span>
                   </div>
                 </div>
               </a>
-              <div class="roblox-body">
-                <div class="roblox-summary">${summary}</div>
-              </div>
             </article>
           `
         }).join("")
