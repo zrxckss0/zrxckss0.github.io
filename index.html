@@ -573,54 +573,46 @@
       text-transform:uppercase;
       backdrop-filter: blur(10px);
     }
-    .roblox-body{
-      padding:14px 16px 16px;
+    .roblox-overlay{
+      position:absolute;
+      left:16px;
+      right:16px;
+      bottom:62px;
+      z-index:1;
       display:grid;
-      gap:12px;
+      gap:10px;
     }
-    .roblox-head{
-      display:grid;
-      gap:4px;
-    }
-    .roblox-head h3{
+    .roblox-overlay h3{
       margin:0;
-      font-size:1.12rem;
-      line-height:1.08;
+      color:#fff;
+      font-size:1.2rem;
+      line-height:1.04;
       letter-spacing:-.02em;
+      text-shadow: 0 10px 30px rgba(0,0,0,.45);
     }
-    .roblox-sub{
-      color:var(--muted2);
-      font-weight:800;
-      font-size:.88rem;
+    .roblox-overlay .roblox-sub{
+      color:rgba(255,255,255,.78);
+      text-shadow: 0 10px 30px rgba(0,0,0,.4);
     }
-    .roblox-stats{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap:8px;
-    }
-    .roblox-stat{
-      padding:10px 11px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
-    }
-    .roblox-stat-label{
-      color:var(--muted2);
-      font-size:.76rem;
-      font-weight:900;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-    }
-    .roblox-stat-value{
-      margin-top:5px;
-      color:var(--text);
-      font-size:1rem;
-      font-weight:950;
-      letter-spacing:-.02em;
-    }
-    .roblox-actions{
+    .roblox-chip-row{
       display:flex;
       flex-wrap:wrap;
+      gap:8px;
+    }
+    .roblox-chip{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(7,8,10,.58);
+      color:#fff;
+      font-size:.8rem;
+      font-weight:900;
+      letter-spacing:.02em;
+      backdrop-filter: blur(10px);
+    }
+    .roblox-body{
+      padding:14px 16px 16px;
+      display:flex;
       gap:10px;
       align-items:center;
       justify-content:space-between;
@@ -629,15 +621,6 @@
       color:var(--muted2);
       font-size:.84rem;
       font-weight:850;
-    }
-    .roblox-topline{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .roblox-topline .btn{
-      flex:0 0 auto;
     }
     .roblox-empty{
       grid-column: 1 / -1;
@@ -951,7 +934,7 @@
 
       <div class="media-subhead">
         <h3>Roblox Games</h3>
-        <p>Game one, game two, game three. Live CCU and visit totals.</p>
+        <p>Retail Tycoon 2, South London Remastered, Oxfordshire County Beta.</p>
       </div>
 
       <div class="roblox-grid" id="robloxGameCards"></div>
@@ -1838,26 +1821,20 @@ return NetGuard`
             <article class="roblox-card reveal">
               <a class="roblox-media" href="${playHref}" target="_blank" rel="noreferrer" aria-label="Open ${title}">
                 <img src="${thumbnailUrl}" alt="${title} thumbnail" loading="lazy">
-                <span class="roblox-badge">Roblox Game</span>
-              </a>
-              <div class="roblox-body">
-                <div class="roblox-topline">
-                  <div class="roblox-head">
+                <div class="roblox-overlay">
+                  <div>
                     <h3>${title}</h3>
                     <div class="roblox-sub">${subtitle}</div>
                   </div>
-                  <a class="btn small primary" href="${playHref}" target="_blank" rel="noreferrer">Join</a>
-                </div>
-                <div class="roblox-stats">
-                  <div class="roblox-stat" title="${fullPlaying} players">
-                    <div class="roblox-stat-label">Live CCU</div>
-                    <div class="roblox-stat-value">${playing}</div>
-                  </div>
-                  <div class="roblox-stat" title="${fullVisits} visits">
-                    <div class="roblox-stat-label">Visits</div>
-                    <div class="roblox-stat-value">${visits}</div>
+                  <div class="roblox-chip-row">
+                    <span class="roblox-chip" title="${fullPlaying} players">CCU ${playing}</span>
+                    <span class="roblox-chip" title="${fullVisits} visits">Visits ${visits}</span>
                   </div>
                 </div>
+                <span class="roblox-badge">Roblox Game</span>
+              </a>
+              <div class="roblox-body">
+                <a class="btn small primary" href="${playHref}" target="_blank" rel="noreferrer">Join Game</a>
                 <div class="roblox-updated">${updatedLabel}</div>
               </div>
             </article>
