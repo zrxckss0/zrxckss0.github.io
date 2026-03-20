@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-20T20:30:47.742Z",
+  "updatedAt": "2026-03-20T21:03:18.875Z",
   "games": [
     {
       "universeId": 2092410051,
@@ -8,8 +8,8 @@
       "displayName": "Retail Tycoon 2",
       "name": "Retail Tycoon 2",
       "creatorName": "Secondhand Studios",
-      "playing": 2225,
-      "visits": 319827355,
+      "playing": 2247,
+      "visits": 319829729,
       "maxPlayers": 6,
       "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-c1ce567799f590d59ebc7f6e516289df/768/432/Image/Png/noFilter",
       "updated": "2025-11-09T23:41:04.593Z"
@@ -21,8 +21,8 @@
       "displayName": "South London Remastered",
       "name": "South London Remastered 😈",
       "creatorName": "Money Motivated!",
-      "playing": 909,
-      "visits": 18136418,
+      "playing": 945,
+      "visits": 18139138,
       "maxPlayers": 35,
       "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-c35854fac60189406a9f31de1b2b050c/768/432/Image/Png/noFilter",
       "updated": "2026-03-20T16:01:26.4360382Z"
@@ -34,11 +34,11 @@
       "displayName": "Oxfordshire County Beta",
       "name": "👷 [COUNCIL TEAM!] Oxfordshire County Beta",
       "creatorName": "Oxfordshire County",
-      "playing": 205,
-      "visits": 1893101,
+      "playing": 179,
+      "visits": 1893789,
       "maxPlayers": 50,
       "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-e6f930fd3d0f4e7f047202ba0f77b5a9/768/432/Image/Png/noFilter",
-      "updated": "2026-03-20T20:27:29.8107578Z"
+      "updated": "2026-03-20T20:31:40.3034934Z"
     }
   ]
 }
