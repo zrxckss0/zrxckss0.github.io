@@ -504,7 +504,7 @@
       display:grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
       gap:18px;
-      margin:16px 0 22px;
+      margin:18px 0 0;
     }
     .media-subhead{
       display:grid;
@@ -520,8 +520,6 @@
     }
     .roblox-card{
       grid-column: span 12;
-      width:min(900px, 100%);
-      margin-inline:auto;
       border-radius: calc(var(--radius) + 6px);
       border:1px solid var(--border);
       background:
@@ -538,7 +536,7 @@
     }
     .roblox-media{
       position:relative;
-      min-height:240px;
+      min-height:200px;
       overflow:hidden;
       background: linear-gradient(180deg, rgba(22,28,40,.96), rgba(10,12,18,.98));
     }
@@ -601,18 +599,7 @@
       font-size:1rem;
     }
     .roblox-summary{
-      margin-bottom:10px;
-    }
-    .roblox-actions{
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .roblox-updated{
-      color:var(--muted2);
-      font-size:.84rem;
-      font-weight:850;
+      margin:0;
     }
     .roblox-empty{
       grid-column: 1 / -1;
@@ -815,7 +802,7 @@
       .hero{grid-template-columns: 1fr; gap:14px}
       .card{grid-column: span 12}
       .roblox-card{grid-column: span 12}
-      .roblox-media{min-height:220px}
+      .roblox-media{min-height:180px}
       .media{grid-column: span 6}
     }
     @media (max-width: 640px){
@@ -922,12 +909,6 @@
         </div>
       </div>
 
-      <div class="media-subhead">
-        <h3>Roblox Games</h3>
-      </div>
-
-      <div class="roblox-grid" id="robloxGameCards"></div>
-
       <div class="media-grid">
         <div class="media">
           <div class="frame">
@@ -996,6 +977,12 @@
           <div class="cap">UIAudioAnalyzer (Wave style)</div>
         </div>
       </div>
+
+      <div class="media-subhead" style="margin-top:18px;">
+        <h3>Roblox Games</h3>
+      </div>
+
+      <div class="roblox-grid" id="robloxGameCards"></div>
     </section>
 
     <div class="footer">
@@ -1704,18 +1691,6 @@ return NetGuard`
       return compactNumber.format(number)
     }
 
-    function formatTimestamp(iso){
-      if (!iso) return ""
-      const date = new Date(iso)
-      if (Number.isNaN(date.getTime())) return ""
-      return date.toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit"
-      })
-    }
-
     const LUA_KEYWORDS = [
       "and","break","do","else","elseif","end","false","for","function","if","in",
       "local","nil","not","or","repeat","return","then","true","until","while"
@@ -1800,7 +1775,6 @@ return NetGuard`
 
         const payload = await response.json()
         const games = Array.isArray(payload.games) ? payload.games : []
-        const updatedAt = formatTimestamp(payload.updatedAt)
 
         if (!games.length){
           elRobloxGameCards.innerHTML = `<div class="roblox-empty">No Roblox game data available right now.</div>`
@@ -1815,7 +1789,6 @@ return NetGuard`
           const thumbnailUrl = escapeHtml(game.thumbnailUrl || "")
           const playing = formatCompactNumber(game.playing)
           const visits = formatCompactNumber(game.visits)
-          const updatedLabel = updatedAt ? `Updated ${escapeHtml(updatedAt)}` : "Stats refresh automatically"
           const fullPlaying = Number(game.playing || 0).toLocaleString("en-US")
           const fullVisits = Number(game.visits || 0).toLocaleString("en-US")
           const summary = escapeHtml(meta.summary || "")
@@ -1837,10 +1810,6 @@ return NetGuard`
               </a>
               <div class="roblox-body">
                 <div class="roblox-summary">${summary}</div>
-                <div class="roblox-actions">
-                  <a class="btn small primary" href="${playHref}" target="_blank" rel="noreferrer">Join Game</a>
-                  <div class="roblox-updated">${updatedLabel}</div>
-                </div>
               </div>
             </article>
           `
