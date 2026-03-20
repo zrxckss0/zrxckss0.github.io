@@ -525,8 +525,6 @@
     }
     .roblox-card{
       grid-column: span 12;
-      display:grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
       border-radius: calc(var(--radius) + 6px);
       border:1px solid var(--border);
       background:
@@ -558,22 +556,6 @@
       position:absolute; inset:0;
       background: linear-gradient(180deg, rgba(7,8,10,.04) 0%, rgba(7,8,10,.58) 100%);
       pointer-events:none;
-    }
-    .roblox-badge{
-      position:absolute;
-      left:16px;
-      bottom:16px;
-      z-index:1;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(7,8,10,.62);
-      color:#f5f7ff;
-      font-size:.76rem;
-      font-weight:950;
-      letter-spacing:.05em;
-      text-transform:uppercase;
-      backdrop-filter: blur(10px);
     }
     .roblox-overlay{
       position:absolute;
@@ -615,29 +597,15 @@
       backdrop-filter: blur(10px);
     }
     .roblox-body{
-      padding:22px 22px 20px;
+      padding:16px 18px 18px;
       display:grid;
-      gap:16px;
-      align-content:center;
-      border-left:1px solid var(--border);
-    }
-    .roblox-role{
-      width:max-content;
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.1);
-      background: rgba(255,255,255,.04);
-      color:var(--text);
-      font-size:.84rem;
-      font-weight:900;
-      letter-spacing:.02em;
-      line-height:1.3;
+      gap:12px;
     }
     .roblox-summary{
       color:var(--muted);
       font-size:1rem;
-      font-weight:780;
-      line-height:1.55;
+      font-weight:820;
+      line-height:1.5;
     }
     .roblox-actions{
       display:flex;
@@ -698,14 +666,6 @@
     [data-theme="light"] .roblox-media{
       background: linear-gradient(180deg, rgba(238,242,250,.96), rgba(226,232,242,.96));
     }
-    [data-theme="light"] .roblox-body{
-      border-left-color: rgba(0,0,0,.06);
-    }
-    [data-theme="light"] .roblox-role{
-      background: rgba(0,0,0,.025);
-      border-color: rgba(0,0,0,.06);
-    }
-
     .footer{
       margin-top:26px;
       padding:18px 0 0;
@@ -858,12 +818,8 @@
     @media (max-width: 980px){
       .hero{grid-template-columns: 1fr; gap:14px}
       .card{grid-column: span 12}
-      .roblox-card{
-        grid-column: span 12;
-        grid-template-columns: 1fr;
-      }
+      .roblox-card{grid-column: span 12}
       .roblox-media{min-height:260px}
-      .roblox-body{border-left:none;border-top:1px solid var(--border)}
       .media{grid-column: span 6}
     }
     @media (max-width: 640px){
@@ -972,7 +928,6 @@
 
       <div class="media-subhead">
         <h3>Roblox Games</h3>
-        <p>Retail Tycoon 2, South London Remastered, Oxfordshire County Beta.</p>
       </div>
 
       <div class="roblox-grid" id="robloxGameCards"></div>
@@ -1743,16 +1698,13 @@ return NetGuard`
 
     const ROBLOX_GAME_META = {
       5865858426: {
-        role: "Countributer BackEnd work alongside revlayz",
-        summary: "Backend contribution work alongside revlayz."
+        summary: "Countributer BackEnd work alongside revlayz"
       },
       114478751418135: {
-        role: "Former Game Scripter",
-        summary: "Former Game Scripter."
+        summary: "Game Scripter"
       },
       101716225967171: {
-        role: "Game Scripter",
-        summary: "Game Scripter."
+        summary: "Game Scripter"
       }
     }
 
@@ -1875,7 +1827,6 @@ return NetGuard`
           const updatedLabel = updatedAt ? `Updated ${escapeHtml(updatedAt)}` : "Stats refresh automatically"
           const fullPlaying = Number(game.playing || 0).toLocaleString("en-US")
           const fullVisits = Number(game.visits || 0).toLocaleString("en-US")
-          const role = escapeHtml(meta.role || "")
           const summary = escapeHtml(meta.summary || "")
 
           return `
@@ -1894,7 +1845,6 @@ return NetGuard`
                 </div>
               </a>
               <div class="roblox-body">
-                <div class="roblox-role">${role}</div>
                 <div class="roblox-summary">${summary}</div>
                 <div class="roblox-actions">
                   <a class="btn small primary" href="${playHref}" target="_blank" rel="noreferrer">Join Game</a>
