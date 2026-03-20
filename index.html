@@ -500,6 +500,128 @@
       grid-template-columns: repeat(12, 1fr);
       gap:14px;
     }
+    .roblox-grid{
+      display:grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap:16px;
+    }
+    .roblox-card{
+      grid-column: span 4;
+      border-radius: calc(var(--radius) + 6px);
+      border:1px solid var(--border);
+      background:
+        radial-gradient(420px 220px at 10% 0%, rgba(122,162,255,.16), transparent 70%),
+        linear-gradient(180deg, rgba(16,20,28,.96), rgba(10,12,18,.98));
+      overflow:hidden;
+      box-shadow: 0 24px 70px rgba(0,0,0,.28);
+      transition: transform .28s var(--ease), border-color .28s var(--ease), box-shadow .28s var(--ease);
+    }
+    .roblox-card:hover{
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,.18);
+      box-shadow: 0 34px 90px rgba(0,0,0,.34);
+    }
+    .roblox-media{
+      position:relative;
+      aspect-ratio: 16/9;
+      overflow:hidden;
+      background: linear-gradient(180deg, rgba(22,28,40,.96), rgba(10,12,18,.98));
+      border-bottom:1px solid var(--border);
+    }
+    .roblox-media img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .roblox-media::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(180deg, rgba(7,8,10,.04) 0%, rgba(7,8,10,.58) 100%);
+      pointer-events:none;
+    }
+    .roblox-badge{
+      position:absolute;
+      left:16px;
+      bottom:16px;
+      z-index:1;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(7,8,10,.62);
+      color:#f5f7ff;
+      font-size:.76rem;
+      font-weight:950;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      backdrop-filter: blur(10px);
+    }
+    .roblox-body{
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+    .roblox-head{
+      display:grid;
+      gap:6px;
+    }
+    .roblox-head h3{
+      margin:0;
+      font-size:1.3rem;
+      line-height:1.05;
+      letter-spacing:-.02em;
+    }
+    .roblox-sub{
+      color:var(--muted2);
+      font-weight:850;
+      font-size:.96rem;
+    }
+    .roblox-stats{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:10px;
+    }
+    .roblox-stat{
+      padding:12px 13px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+    }
+    .roblox-stat-label{
+      color:var(--muted2);
+      font-size:.76rem;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .roblox-stat-value{
+      margin-top:6px;
+      color:var(--text);
+      font-size:1.15rem;
+      font-weight:950;
+      letter-spacing:-.02em;
+    }
+    .roblox-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .roblox-updated{
+      color:var(--muted2);
+      font-size:.84rem;
+      font-weight:850;
+    }
+    .roblox-empty{
+      grid-column: 1 / -1;
+      padding:18px;
+      border-radius: var(--radius);
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      color:var(--muted);
+      font-weight:850;
+    }
     .media{
       grid-column: span 6;
       border-radius: var(--radius);
@@ -529,20 +651,20 @@
       background: linear-gradient(180deg, rgba(7,8,10,0) 45%, rgba(7,8,10,.24) 100%);
       pointer-events:none;
     }
-    .media.game-card .frame{
-      background:
-        radial-gradient(420px 220px at 10% 0%, color-mix(in oklab, var(--spark) 28%, transparent), transparent 70%),
-        linear-gradient(180deg, rgba(16,20,28,.96), rgba(10,12,18,.98));
-    }
-    .media.game-card .frame img{
-      opacity:0;
-      transition: opacity .3s var(--ease);
-    }
-    .media.game-card .frame img.is-ready{opacity:1;}
-    .media.game-card .cap{
-      min-height:auto;
-    }
     [data-theme="light"] .media .frame{ background: rgba(0,0,0,.03); }
+    [data-theme="light"] .roblox-card{
+      background:
+        radial-gradient(420px 220px at 10% 0%, rgba(122,162,255,.14), transparent 72%),
+        linear-gradient(180deg, rgba(255,255,255,.94), rgba(244,246,250,.9));
+      box-shadow: 0 24px 70px rgba(0,0,0,.12);
+    }
+    [data-theme="light"] .roblox-media{
+      background: linear-gradient(180deg, rgba(238,242,250,.96), rgba(226,232,242,.96));
+    }
+    [data-theme="light"] .roblox-stat{
+      background: rgba(0,0,0,.025);
+      border-color: rgba(0,0,0,.06);
+    }
 
     .footer{
       margin-top:26px;
@@ -696,9 +818,11 @@
     @media (max-width: 980px){
       .hero{grid-template-columns: 1fr; gap:14px}
       .card{grid-column: span 12}
+      .roblox-card{grid-column: span 6}
       .media{grid-column: span 6}
     }
     @media (max-width: 640px){
+      .roblox-card{grid-column: span 12}
       .media{grid-column: span 12}
       .field input{width: 52vw}
     }
@@ -791,6 +915,17 @@
       <div class="cards" id="projectCards"></div>
     </section>
 
+    <section class="section reveal" id="roblox-games">
+      <div class="section-head">
+        <div>
+          <h2>Roblox Games</h2>
+          <p class="lead">Featured live game cards with current CCU and visit totals.</p>
+        </div>
+      </div>
+
+      <div class="roblox-grid" id="robloxGameCards"></div>
+    </section>
+
     <section class="section reveal" id="media">
       <div class="section-head">
         <div>
@@ -800,39 +935,6 @@
       </div>
 
       <div class="media-grid">
-        <div class="media game-card">
-          <div class="frame loading">
-            <a href="https://www.roblox.com/games/5865858426/Retail-Tycoon-2" target="_blank" rel="noreferrer" aria-label="Open Retail Tycoon 2">
-              <img data-place-id="5865858426" alt="Retail Tycoon 2 thumbnail" loading="lazy">
-            </a>
-          </div>
-          <div class="cap">
-            <strong>Retail Tycoon 2</strong>
-          </div>
-        </div>
-
-        <div class="media game-card">
-          <div class="frame loading">
-            <a href="https://www.roblox.com/games/114478751418135/South-London-Remastered" target="_blank" rel="noreferrer" aria-label="Open South London Remastered">
-              <img data-place-id="114478751418135" alt="South London Remastered thumbnail" loading="lazy">
-            </a>
-          </div>
-          <div class="cap">
-            <strong>South London Remastered</strong>
-          </div>
-        </div>
-
-        <div class="media game-card">
-          <div class="frame loading">
-            <a href="https://www.roblox.com/games/101716225967171/Oxfordshire-County-Beta" target="_blank" rel="noreferrer" aria-label="Open Oxfordshire County Beta">
-              <img data-place-id="101716225967171" alt="Oxfordshire County Beta thumbnail" loading="lazy">
-            </a>
-          </div>
-          <div class="cap">
-            <strong>Oxfordshire County Beta</strong>
-          </div>
-        </div>
-
         <div class="media">
           <div class="frame">
             <img src="media/demo1.png" alt="Demo screenshot 1"
@@ -1572,49 +1674,8 @@ return NetGuard`
       }
     ]
 
-    const gameThumbnailFrames = [...document.querySelectorAll('.media.game-card .frame')]
-
-    async function loadRobloxThumbnails(){
-      const images = gameThumbnailFrames
-        .map((frame) => frame.querySelector('img[data-place-id]'))
-        .filter(Boolean)
-
-      if (!images.length) return
-
-      const placeIds = images.map((img) => img.dataset.placeId).join(',')
-      const endpoint = `https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeIds}&returnPolicy=PlaceHolder&size=768x432&format=Png&isCircular=false`
-
-      try{
-        const response = await fetch(endpoint)
-        if (!response.ok) throw new Error(`Request failed with ${response.status}`)
-        const payload = await response.json()
-        const byId = new Map((payload.data || []).map((item) => [String(item.targetId), item.imageUrl]))
-
-        images.forEach((img) => {
-          const frame = img.closest('.frame')
-          const imageUrl = byId.get(img.dataset.placeId)
-          if (imageUrl){
-            img.src = imageUrl
-            img.classList.add('is-ready')
-            frame.classList.remove('loading', 'error')
-          }else{
-            img.classList.remove('is-ready')
-            frame.classList.remove('loading')
-            frame.classList.add('error')
-          }
-        })
-      }catch(error){
-        gameThumbnailFrames.forEach((frame) => {
-          const img = frame.querySelector('img[data-place-id]')
-          if (img) img.classList.remove('is-ready')
-          frame.classList.remove('loading')
-          frame.classList.add('error')
-        })
-        console.warn('Unable to load Roblox thumbnails.', error)
-      }
-    }
-
     const elCards = document.getElementById("projectCards")
+    const elRobloxGameCards = document.getElementById("robloxGameCards")
     const modalBackdrop = document.getElementById("modalBackdrop")
     const modalTitle = document.getElementById("modalTitle")
     const modalBody = document.getElementById("modalBody")
@@ -1626,6 +1687,28 @@ return NetGuard`
       .replaceAll(">","&gt;")
       .replaceAll('"',"&quot;")
       .replaceAll("'","&#039;")
+
+    const compactNumber = new Intl.NumberFormat("en", {
+      notation: "compact",
+      maximumFractionDigits: 1
+    })
+
+    function formatCompactNumber(value){
+      const number = Number(value || 0)
+      return compactNumber.format(number)
+    }
+
+    function formatTimestamp(iso){
+      if (!iso) return ""
+      const date = new Date(iso)
+      if (Number.isNaN(date.getTime())) return ""
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      })
+    }
 
     const LUA_KEYWORDS = [
       "and","break","do","else","elseif","end","false","for","function","if","in",
@@ -1696,6 +1779,74 @@ return NetGuard`
           <div>Tip: <span class="kbd">Esc</span> closes</div>
         </div>
       `
+    }
+
+    async function renderRobloxGames(){
+      if (!elRobloxGameCards) return
+
+      elRobloxGameCards.innerHTML = `
+        <div class="roblox-empty">Loading Roblox game cards...</div>
+      `
+
+      try{
+        const response = await fetch("data/roblox-games.json", { cache: "no-store" })
+        if (!response.ok) throw new Error(`Request failed with ${response.status}`)
+
+        const payload = await response.json()
+        const games = Array.isArray(payload.games) ? payload.games : []
+        const updatedAt = formatTimestamp(payload.updatedAt)
+
+        if (!games.length){
+          elRobloxGameCards.innerHTML = `<div class="roblox-empty">No Roblox game data available right now.</div>`
+          return
+        }
+
+        elRobloxGameCards.innerHTML = games.map((game) => {
+          const title = escapeHtml(game.displayName || game.name || "Roblox Game")
+          const subtitle = escapeHtml(game.creatorName || "Roblox")
+          const playHref = escapeHtml(game.href || "#")
+          const thumbnailUrl = escapeHtml(game.thumbnailUrl || "")
+          const playing = formatCompactNumber(game.playing)
+          const visits = formatCompactNumber(game.visits)
+          const updatedLabel = updatedAt ? `Updated ${escapeHtml(updatedAt)}` : "Stats refresh automatically"
+          const fullPlaying = Number(game.playing || 0).toLocaleString("en-US")
+          const fullVisits = Number(game.visits || 0).toLocaleString("en-US")
+
+          return `
+            <article class="roblox-card reveal">
+              <a class="roblox-media" href="${playHref}" target="_blank" rel="noreferrer" aria-label="Open ${title}">
+                <img src="${thumbnailUrl}" alt="${title} thumbnail" loading="lazy">
+                <span class="roblox-badge">Roblox Game</span>
+              </a>
+              <div class="roblox-body">
+                <div class="roblox-head">
+                  <h3>${title}</h3>
+                  <div class="roblox-sub">${subtitle}</div>
+                </div>
+                <div class="roblox-stats">
+                  <div class="roblox-stat" title="${fullPlaying} players">
+                    <div class="roblox-stat-label">Live CCU</div>
+                    <div class="roblox-stat-value">${playing}</div>
+                  </div>
+                  <div class="roblox-stat" title="${fullVisits} visits">
+                    <div class="roblox-stat-label">Visits</div>
+                    <div class="roblox-stat-value">${visits}</div>
+                  </div>
+                </div>
+                <div class="roblox-actions">
+                  <a class="btn small primary" href="${playHref}" target="_blank" rel="noreferrer">Join Game</a>
+                  <div class="roblox-updated">${updatedLabel}</div>
+                </div>
+              </div>
+            </article>
+          `
+        }).join("")
+      }catch(error){
+        elRobloxGameCards.innerHTML = `
+          <div class="roblox-empty">Roblox game cards are unavailable right now.</div>
+        `
+        console.warn("Unable to load Roblox game cards.", error)
+      }
     }
 
     function renderCards(){
@@ -1869,12 +2020,16 @@ return NetGuard`
       }, { passive:true })
     }
 
-    renderCards()
-    attachHandlers()
-    setupReveal()
-    setupParallax()
-    loadRobloxThumbnails()
-    document.getElementById("year").textContent = String(new Date().getFullYear())
+    async function boot(){
+      renderCards()
+      await renderRobloxGames()
+      attachHandlers()
+      setupReveal()
+      setupParallax()
+      document.getElementById("year").textContent = String(new Date().getFullYear())
+    }
+
+    boot()
   </script>
 </body>
 </html>

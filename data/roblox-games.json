@@ -1,0 +1,44 @@
+{
+  "updatedAt": "2026-03-20T17:56:43.127Z",
+  "games": [
+    {
+      "universeId": 2092410051,
+      "placeId": 5865858426,
+      "href": "https://www.roblox.com/games/5865858426/Retail-Tycoon-2",
+      "displayName": "Retail Tycoon 2",
+      "name": "Retail Tycoon 2",
+      "creatorName": "Secondhand Studios",
+      "playing": 2319,
+      "visits": 319815404,
+      "maxPlayers": 6,
+      "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-c1ce567799f590d59ebc7f6e516289df/768/432/Image/Png/noFilter",
+      "updated": "2025-11-09T23:41:04.593Z"
+    },
+    {
+      "universeId": 7428819247,
+      "placeId": 114478751418135,
+      "href": "https://www.roblox.com/games/114478751418135/South-London-Remastered",
+      "displayName": "South London Remastered",
+      "name": "South London Remastered 😈",
+      "creatorName": "Money Motivated!",
+      "playing": 808,
+      "visits": 18124371,
+      "maxPlayers": 35,
+      "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-c35854fac60189406a9f31de1b2b050c/768/432/Image/Png/noFilter",
+      "updated": "2026-03-20T16:01:26.4360382Z"
+    },
+    {
+      "universeId": 9047190101,
+      "placeId": 101716225967171,
+      "href": "https://www.roblox.com/games/101716225967171/Oxfordshire-County-Beta",
+      "displayName": "Oxfordshire County Beta",
+      "name": "👷 [COUNCIL TEAM!] Oxfordshire County Beta",
+      "creatorName": "Oxfordshire County",
+      "playing": 248,
+      "visits": 1889554,
+      "maxPlayers": 50,
+      "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-e6f930fd3d0f4e7f047202ba0f77b5a9/768/432/Image/Png/noFilter",
+      "updated": "2026-03-20T17:53:22.1468746Z"
+    }
+  ]
+}
