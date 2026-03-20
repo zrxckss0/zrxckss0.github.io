@@ -512,6 +512,8 @@
     .media:hover{transform: translateY(-3px);border-color: var(--border2);}
     .media .cap{padding:14px 14px 16px;color:var(--muted);font-weight:750;line-height:1.6;font-size:1rem;}
     .media .cap strong{display:block;color:var(--text);font-size:1.02rem;margin-bottom:6px;}
+    .media .cap .meta{display:inline-flex;align-items:center;gap:8px;margin-top:10px;color:var(--spark2);font-size:.88rem;font-weight:900;letter-spacing:.02em;text-transform:uppercase;}
+    .media .cap .meta a{color:inherit;text-decoration:none;}
     .media .frame{
       aspect-ratio: 16/9;
       background: rgba(0,0,0,.08);
@@ -546,6 +548,25 @@
       backdrop-filter: blur(10px);
       box-shadow: 0 10px 24px rgba(0,0,0,.28);
     }
+    .media.game-card .frame::before{
+      content:attr(data-game-role);
+      position:absolute;
+      left:14px; bottom:14px;
+      padding:8px 11px;
+      border-radius:999px;
+      background: rgba(7,8,10,.72);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff;
+      font-size:.78rem;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      z-index:1;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 24px rgba(0,0,0,.28);
+    }
+    .media.game-card .frame.loading::before{content:"Loading thumbnail...";}
+    .media.game-card .frame.error::before{content:"Thumbnail unavailable";}
     [data-theme="light"] .media .frame{ background: rgba(0,0,0,.03); }
 
     .footer{
@@ -808,11 +829,16 @@
           <div class="frame" data-game-role="Contributor">
             <a href="https://www.roblox.com/games/5865858426/Retail-Tycoon-2" target="_blank" rel="noreferrer" aria-label="Open Retail Tycoon 2">
               <img src="https://www.roblox.com/asset-thumbnail/image?assetId=5865858426&width=768&height=432&format=png" alt="Retail Tycoon 2 thumbnail" loading="lazy" onerror="this.src='https://placehold.co/1280x720/10151d/EEF1F6?text=Retail+Tycoon+2'">
+          <div class="frame loading" data-game-role="Contributor">
+            <a href="https://www.roblox.com/games/5865858426/Retail-Tycoon-2" target="_blank" rel="noreferrer">
+              <img data-place-id="5865858426" src="https://placehold.co/1280x720/10151d/EEF1F6?text=Retail+Tycoon+2" alt="Retail Tycoon 2 thumbnail">
             </a>
           </div>
           <div class="cap">
             <strong>Retail Tycoon 2</strong>
             I was a countributer and did backend work alongside revlayz.
+            I was a countributer and did backend work alongside revlayz. The thumbnail is loaded with the Roblox thumbnails API when it is available.
+            <span class="meta"><a href="https://www.roblox.com/games/5865858426/Retail-Tycoon-2" target="_blank" rel="noreferrer">Open game ↗</a></span>
           </div>
         </div>
 
@@ -820,11 +846,15 @@
           <div class="frame" data-game-role="Former Game Scripter">
             <a href="https://www.roblox.com/games/114478751418135/South-London-Remastered" target="_blank" rel="noreferrer" aria-label="Open South London Remastered">
               <img src="https://www.roblox.com/asset-thumbnail/image?assetId=114478751418135&width=768&height=432&format=png" alt="South London Remastered thumbnail" loading="lazy" onerror="this.src='https://placehold.co/1280x720/10151d/EEF1F6?text=South+London+Remastered'">
+          <div class="frame loading" data-game-role="Former Game Scripter">
+            <a href="https://www.roblox.com/games/114478751418135/South-London-Remastered" target="_blank" rel="noreferrer">
+              <img data-place-id="114478751418135" src="https://placehold.co/1280x720/10151d/EEF1F6?text=South+London+Remastered" alt="South London Remastered thumbnail">
             </a>
           </div>
           <div class="cap">
             <strong>South London Remastered</strong>
             Former Game Scripter.
+            <span class="meta"><a href="https://www.roblox.com/games/114478751418135/South-London-Remastered" target="_blank" rel="noreferrer">Open game ↗</a></span>
           </div>
         </div>
 
@@ -832,11 +862,15 @@
           <div class="frame" data-game-role="Game Scripter">
             <a href="https://www.roblox.com/games/101716225967171/Oxfordshire-County-Beta" target="_blank" rel="noreferrer" aria-label="Open Oxfordshire County Beta">
               <img src="https://www.roblox.com/asset-thumbnail/image?assetId=101716225967171&width=768&height=432&format=png" alt="Oxfordshire County Beta thumbnail" loading="lazy" onerror="this.src='https://placehold.co/1280x720/10151d/EEF1F6?text=Oxfordshire+County+Beta'">
+          <div class="frame loading" data-game-role="Game Scripter">
+            <a href="https://www.roblox.com/games/101716225967171/Oxfordshire-County-Beta" target="_blank" rel="noreferrer">
+              <img data-place-id="101716225967171" src="https://placehold.co/1280x720/10151d/EEF1F6?text=Oxfordshire+County+Beta" alt="Oxfordshire County Beta thumbnail">
             </a>
           </div>
           <div class="cap">
             <strong>Oxfordshire County Beta</strong>
             Game Scripter.
+            <span class="meta"><a href="https://www.roblox.com/games/101716225967171/Oxfordshire-County-Beta" target="_blank" rel="noreferrer">Open game ↗</a></span>
           </div>
         </div>
 
@@ -1579,6 +1613,44 @@ return NetGuard`
       }
     ]
 
+    const gameThumbnailFrames = [...document.querySelectorAll('.media.game-card .frame')]
+
+    async function loadRobloxThumbnails(){
+      const images = gameThumbnailFrames
+        .map((frame) => frame.querySelector('img[data-place-id]'))
+        .filter(Boolean)
+
+      if (!images.length) return
+
+      const placeIds = images.map((img) => img.dataset.placeId).join(',')
+      const endpoint = `https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeIds}&returnPolicy=PlaceHolder&size=768x432&format=Png&isCircular=false`
+
+      try{
+        const response = await fetch(endpoint)
+        if (!response.ok) throw new Error(`Request failed with ${response.status}`)
+        const payload = await response.json()
+        const byId = new Map((payload.data || []).map((item) => [String(item.targetId), item.imageUrl]))
+
+        images.forEach((img) => {
+          const frame = img.closest('.frame')
+          const imageUrl = byId.get(img.dataset.placeId)
+          if (imageUrl){
+            img.src = imageUrl
+            frame.classList.remove('loading', 'error')
+          }else{
+            frame.classList.remove('loading')
+            frame.classList.add('error')
+          }
+        })
+      }catch(error){
+        gameThumbnailFrames.forEach((frame) => {
+          frame.classList.remove('loading')
+          frame.classList.add('error')
+        })
+        console.warn('Unable to load Roblox thumbnails.', error)
+      }
+    }
+
     const elCards = document.getElementById("projectCards")
     const modalBackdrop = document.getElementById("modalBackdrop")
     const modalTitle = document.getElementById("modalTitle")
@@ -1838,6 +1910,7 @@ return NetGuard`
     attachHandlers()
     setupReveal()
     setupParallax()
+    loadRobloxThumbnails()
     document.getElementById("year").textContent = String(new Date().getFullYear())
   </script>
 </body>
