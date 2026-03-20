@@ -503,8 +503,25 @@
     .roblox-grid{
       display:grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap:16px;
-      margin-bottom:16px;
+      gap:18px;
+      margin:16px 0 22px;
+    }
+    .media-subhead{
+      display:grid;
+      gap:6px;
+      margin-top:4px;
+      margin-bottom:4px;
+    }
+    .media-subhead h3{
+      margin:0;
+      color:var(--text);
+      font-size:1.15rem;
+      letter-spacing:-.02em;
+    }
+    .media-subhead p{
+      margin:0;
+      color:var(--muted2);
+      font-weight:800;
     }
     .roblox-card{
       grid-column: span 4;
@@ -524,10 +541,9 @@
     }
     .roblox-media{
       position:relative;
-      aspect-ratio: 16/9;
+      aspect-ratio: 5 / 4;
       overflow:hidden;
       background: linear-gradient(180deg, rgba(22,28,40,.96), rgba(10,12,18,.98));
-      border-bottom:1px solid var(--border);
     }
     .roblox-media img{
       width:100%;
@@ -558,33 +574,33 @@
       backdrop-filter: blur(10px);
     }
     .roblox-body{
-      padding:18px;
+      padding:14px 16px 16px;
       display:grid;
-      gap:14px;
+      gap:12px;
     }
     .roblox-head{
       display:grid;
-      gap:6px;
+      gap:4px;
     }
     .roblox-head h3{
       margin:0;
-      font-size:1.3rem;
-      line-height:1.05;
+      font-size:1.12rem;
+      line-height:1.08;
       letter-spacing:-.02em;
     }
     .roblox-sub{
       color:var(--muted2);
-      font-weight:850;
-      font-size:.96rem;
+      font-weight:800;
+      font-size:.88rem;
     }
     .roblox-stats{
       display:grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap:10px;
+      gap:8px;
     }
     .roblox-stat{
-      padding:12px 13px;
-      border-radius:16px;
+      padding:10px 11px;
+      border-radius:14px;
       border:1px solid rgba(255,255,255,.08);
       background: rgba(255,255,255,.03);
     }
@@ -596,9 +612,9 @@
       text-transform:uppercase;
     }
     .roblox-stat-value{
-      margin-top:6px;
+      margin-top:5px;
       color:var(--text);
-      font-size:1.15rem;
+      font-size:1rem;
       font-weight:950;
       letter-spacing:-.02em;
     }
@@ -613,6 +629,15 @@
       color:var(--muted2);
       font-size:.84rem;
       font-weight:850;
+    }
+    .roblox-topline{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .roblox-topline .btn{
+      flex:0 0 auto;
     }
     .roblox-empty{
       grid-column: 1 / -1;
@@ -922,6 +947,11 @@
           <h2>Media</h2>
           <p class="lead">Old past work, fully made by me. This isn’t updated and doesn’t fully showcase what I’m capable of.</p>
         </div>
+      </div>
+
+      <div class="media-subhead">
+        <h3>Roblox Games</h3>
+        <p>Game one, game two, game three. Live CCU and visit totals.</p>
       </div>
 
       <div class="roblox-grid" id="robloxGameCards"></div>
@@ -1811,9 +1841,12 @@ return NetGuard`
                 <span class="roblox-badge">Roblox Game</span>
               </a>
               <div class="roblox-body">
-                <div class="roblox-head">
-                  <h3>${title}</h3>
-                  <div class="roblox-sub">${subtitle}</div>
+                <div class="roblox-topline">
+                  <div class="roblox-head">
+                    <h3>${title}</h3>
+                    <div class="roblox-sub">${subtitle}</div>
+                  </div>
+                  <a class="btn small primary" href="${playHref}" target="_blank" rel="noreferrer">Join</a>
                 </div>
                 <div class="roblox-stats">
                   <div class="roblox-stat" title="${fullPlaying} players">
@@ -1825,10 +1858,7 @@ return NetGuard`
                     <div class="roblox-stat-value">${visits}</div>
                   </div>
                 </div>
-                <div class="roblox-actions">
-                  <a class="btn small primary" href="${playHref}" target="_blank" rel="noreferrer">Join Game</a>
-                  <div class="roblox-updated">${updatedLabel}</div>
-                </div>
+                <div class="roblox-updated">${updatedLabel}</div>
               </div>
             </article>
           `
