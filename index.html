@@ -584,6 +584,25 @@
       backdrop-filter: blur(10px);
       box-shadow: 0 10px 24px rgba(0,0,0,.28);
     }
+    .media.game-card .frame::before{
+      content:attr(data-game-role);
+      position:absolute;
+      left:14px; bottom:14px;
+      padding:8px 11px;
+      border-radius:999px;
+      background: rgba(7,8,10,.72);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff;
+      font-size:.78rem;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      z-index:1;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 24px rgba(0,0,0,.28);
+    }
+    .media.game-card .frame.loading::before{content:"Loading thumbnail...";}
+    .media.game-card .frame.error::before{content:"Thumbnail unavailable";}
     [data-theme="light"] .media .frame{ background: rgba(0,0,0,.03); }
 
     .footer{
@@ -1629,6 +1648,44 @@ return NetGuard`
       }
     ]
 
+    const gameThumbnailFrames = [...document.querySelectorAll('.media.game-card .frame')]
+
+    async function loadRobloxThumbnails(){
+      const images = gameThumbnailFrames
+        .map((frame) => frame.querySelector('img[data-place-id]'))
+        .filter(Boolean)
+
+      if (!images.length) return
+
+      const placeIds = images.map((img) => img.dataset.placeId).join(',')
+      const endpoint = `https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeIds}&returnPolicy=PlaceHolder&size=768x432&format=Png&isCircular=false`
+
+      try{
+        const response = await fetch(endpoint)
+        if (!response.ok) throw new Error(`Request failed with ${response.status}`)
+        const payload = await response.json()
+        const byId = new Map((payload.data || []).map((item) => [String(item.targetId), item.imageUrl]))
+
+        images.forEach((img) => {
+          const frame = img.closest('.frame')
+          const imageUrl = byId.get(img.dataset.placeId)
+          if (imageUrl){
+            img.src = imageUrl
+            frame.classList.remove('loading', 'error')
+          }else{
+            frame.classList.remove('loading')
+            frame.classList.add('error')
+          }
+        })
+      }catch(error){
+        gameThumbnailFrames.forEach((frame) => {
+          frame.classList.remove('loading')
+          frame.classList.add('error')
+        })
+        console.warn('Unable to load Roblox thumbnails.', error)
+      }
+    }
+
     const elCards = document.getElementById("projectCards")
     const modalBackdrop = document.getElementById("modalBackdrop")
     const modalTitle = document.getElementById("modalTitle")
@@ -1888,6 +1945,7 @@ return NetGuard`
     attachHandlers()
     setupReveal()
     setupParallax()
+    loadRobloxThumbnails()
     document.getElementById("year").textContent = String(new Date().getFullYear())
   </script>
 </body>
