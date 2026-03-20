@@ -534,11 +534,6 @@
         radial-gradient(420px 220px at 10% 0%, color-mix(in oklab, var(--spark) 28%, transparent), transparent 70%),
         linear-gradient(180deg, rgba(16,20,28,.96), rgba(10,12,18,.98));
     }
-    .media.game-card .frame img{
-      opacity:0;
-      transition: opacity .3s var(--ease);
-    }
-    .media.game-card .frame img.is-ready{opacity:1;}
     .media.game-card .cap{
       min-height:auto;
     }
@@ -801,9 +796,9 @@
 
       <div class="media-grid">
         <div class="media game-card">
-          <div class="frame loading">
+          <div class="frame">
             <a href="https://www.roblox.com/games/5865858426/Retail-Tycoon-2" target="_blank" rel="noreferrer" aria-label="Open Retail Tycoon 2">
-              <img data-place-id="5865858426" alt="Retail Tycoon 2 thumbnail" loading="lazy">
+              <img src="media/retail-tycoon-2.png" alt="Retail Tycoon 2 thumbnail" loading="lazy">
             </a>
           </div>
           <div class="cap">
@@ -812,9 +807,9 @@
         </div>
 
         <div class="media game-card">
-          <div class="frame loading">
+          <div class="frame">
             <a href="https://www.roblox.com/games/114478751418135/South-London-Remastered" target="_blank" rel="noreferrer" aria-label="Open South London Remastered">
-              <img data-place-id="114478751418135" alt="South London Remastered thumbnail" loading="lazy">
+              <img src="media/south-london-remastered.png" alt="South London Remastered thumbnail" loading="lazy">
             </a>
           </div>
           <div class="cap">
@@ -823,9 +818,9 @@
         </div>
 
         <div class="media game-card">
-          <div class="frame loading">
+          <div class="frame">
             <a href="https://www.roblox.com/games/101716225967171/Oxfordshire-County-Beta" target="_blank" rel="noreferrer" aria-label="Open Oxfordshire County Beta">
-              <img data-place-id="101716225967171" alt="Oxfordshire County Beta thumbnail" loading="lazy">
+              <img src="media/oxfordshire-county-beta.png" alt="Oxfordshire County Beta thumbnail" loading="lazy">
             </a>
           </div>
           <div class="cap">
@@ -1572,48 +1567,6 @@ return NetGuard`
       }
     ]
 
-    const gameThumbnailFrames = [...document.querySelectorAll('.media.game-card .frame')]
-
-    async function loadRobloxThumbnails(){
-      const images = gameThumbnailFrames
-        .map((frame) => frame.querySelector('img[data-place-id]'))
-        .filter(Boolean)
-
-      if (!images.length) return
-
-      const placeIds = images.map((img) => img.dataset.placeId).join(',')
-      const endpoint = `https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeIds}&returnPolicy=PlaceHolder&size=768x432&format=Png&isCircular=false`
-
-      try{
-        const response = await fetch(endpoint)
-        if (!response.ok) throw new Error(`Request failed with ${response.status}`)
-        const payload = await response.json()
-        const byId = new Map((payload.data || []).map((item) => [String(item.targetId), item.imageUrl]))
-
-        images.forEach((img) => {
-          const frame = img.closest('.frame')
-          const imageUrl = byId.get(img.dataset.placeId)
-          if (imageUrl){
-            img.src = imageUrl
-            img.classList.add('is-ready')
-            frame.classList.remove('loading', 'error')
-          }else{
-            img.classList.remove('is-ready')
-            frame.classList.remove('loading')
-            frame.classList.add('error')
-          }
-        })
-      }catch(error){
-        gameThumbnailFrames.forEach((frame) => {
-          const img = frame.querySelector('img[data-place-id]')
-          if (img) img.classList.remove('is-ready')
-          frame.classList.remove('loading')
-          frame.classList.add('error')
-        })
-        console.warn('Unable to load Roblox thumbnails.', error)
-      }
-    }
-
     const elCards = document.getElementById("projectCards")
     const modalBackdrop = document.getElementById("modalBackdrop")
     const modalTitle = document.getElementById("modalTitle")
@@ -1873,7 +1826,6 @@ return NetGuard`
     attachHandlers()
     setupReveal()
     setupParallax()
-    loadRobloxThumbnails()
     document.getElementById("year").textContent = String(new Date().getFullYear())
   </script>
 </body>
