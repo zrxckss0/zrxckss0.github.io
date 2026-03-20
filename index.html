@@ -529,80 +529,19 @@
       background: linear-gradient(180deg, rgba(7,8,10,0) 45%, rgba(7,8,10,.24) 100%);
       pointer-events:none;
     }
-    .game-poster{
-      width:100%;
-      height:100%;
-      padding:18px;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-      gap:10px;
+    .media.game-card .frame{
       background:
-        radial-gradient(420px 220px at 10% 0%, color-mix(in oklab, var(--poster-accent, var(--spark)) 32%, transparent), transparent 70%),
-        linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01)),
+        radial-gradient(420px 220px at 10% 0%, color-mix(in oklab, var(--spark) 28%, transparent), transparent 70%),
         linear-gradient(180deg, rgba(16,20,28,.96), rgba(10,12,18,.98));
     }
-    .game-poster .eyebrow{
-      width:max-content;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      color:var(--muted);
-      font-size:.72rem;
-      font-weight:900;
-      letter-spacing:.08em;
-      text-transform:uppercase;
+    .media.game-card .frame img{
+      opacity:0;
+      transition: opacity .3s var(--ease);
     }
-    .game-poster .title{
-      max-width:15ch;
-      color:var(--text);
-      font-size:clamp(1.45rem, 2.2vw, 2rem);
-      line-height:1.02;
-      font-weight:900;
-      text-wrap:balance;
+    .media.game-card .frame img.is-ready{opacity:1;}
+    .media.game-card .cap{
+      min-height:auto;
     }
-    .game-poster .sub{
-      color:var(--muted);
-      font-weight:800;
-      max-width:26ch;
-    }
-    .media.game-card .frame::before{
-      content:attr(data-game-role);
-      position:absolute;
-      left:14px; bottom:14px;
-      padding:8px 11px;
-      border-radius:999px;
-      background: rgba(7,8,10,.72);
-      border:1px solid rgba(255,255,255,.14);
-      color:#fff;
-      font-size:.78rem;
-      font-weight:900;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-      z-index:1;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 24px rgba(0,0,0,.28);
-    }
-    .media.game-card .frame::before{
-      content:attr(data-game-role);
-      position:absolute;
-      left:14px; bottom:14px;
-      padding:8px 11px;
-      border-radius:999px;
-      background: rgba(7,8,10,.72);
-      border:1px solid rgba(255,255,255,.14);
-      color:#fff;
-      font-size:.78rem;
-      font-weight:900;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-      z-index:1;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 24px rgba(0,0,0,.28);
-    }
-    .media.game-card .frame.loading::before{content:"Loading thumbnail...";}
-    .media.game-card .frame.error::before{content:"Thumbnail unavailable";}
     [data-theme="light"] .media .frame{ background: rgba(0,0,0,.03); }
 
     .footer{
@@ -862,50 +801,35 @@
 
       <div class="media-grid">
         <div class="media game-card">
-          <div class="frame" data-game-role="Contributor">
+          <div class="frame loading">
             <a href="https://www.roblox.com/games/5865858426/Retail-Tycoon-2" target="_blank" rel="noreferrer" aria-label="Open Retail Tycoon 2">
-              <div class="game-poster" style="--poster-accent:#7aa2ff">
-                <div class="eyebrow">Roblox Game</div>
-                <div class="title">Retail Tycoon 2</div>
-                <div class="sub">Contributor · backend work alongside revlayz</div>
-              </div>
+              <img data-place-id="5865858426" alt="Retail Tycoon 2 thumbnail" loading="lazy">
             </a>
           </div>
           <div class="cap">
             <strong>Retail Tycoon 2</strong>
-            I was a countributer and did backend work alongside revlayz.
           </div>
         </div>
 
         <div class="media game-card">
-          <div class="frame" data-game-role="Former Game Scripter">
+          <div class="frame loading">
             <a href="https://www.roblox.com/games/114478751418135/South-London-Remastered" target="_blank" rel="noreferrer" aria-label="Open South London Remastered">
-              <div class="game-poster" style="--poster-accent:#39d5ff">
-                <div class="eyebrow">Roblox Game</div>
-                <div class="title">South London Remastered</div>
-                <div class="sub">Former Game Scripter</div>
-              </div>
+              <img data-place-id="114478751418135" alt="South London Remastered thumbnail" loading="lazy">
             </a>
           </div>
           <div class="cap">
             <strong>South London Remastered</strong>
-            Former Game Scripter.
           </div>
         </div>
 
         <div class="media game-card">
-          <div class="frame" data-game-role="Game Scripter">
+          <div class="frame loading">
             <a href="https://www.roblox.com/games/101716225967171/Oxfordshire-County-Beta" target="_blank" rel="noreferrer" aria-label="Open Oxfordshire County Beta">
-              <div class="game-poster" style="--poster-accent:#9b8cff">
-                <div class="eyebrow">Roblox Game</div>
-                <div class="title">Oxfordshire County Beta</div>
-                <div class="sub">Game Scripter</div>
-              </div>
+              <img data-place-id="101716225967171" alt="Oxfordshire County Beta thumbnail" loading="lazy">
             </a>
           </div>
           <div class="cap">
             <strong>Oxfordshire County Beta</strong>
-            Game Scripter.
           </div>
         </div>
 
@@ -1671,14 +1595,18 @@ return NetGuard`
           const imageUrl = byId.get(img.dataset.placeId)
           if (imageUrl){
             img.src = imageUrl
+            img.classList.add('is-ready')
             frame.classList.remove('loading', 'error')
           }else{
+            img.classList.remove('is-ready')
             frame.classList.remove('loading')
             frame.classList.add('error')
           }
         })
       }catch(error){
         gameThumbnailFrames.forEach((frame) => {
+          const img = frame.querySelector('img[data-place-id]')
+          if (img) img.classList.remove('is-ready')
           frame.classList.remove('loading')
           frame.classList.add('error')
         })
