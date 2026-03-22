@@ -25,6 +25,18 @@ const GAMES = [
     placeId: 101716225967171,
     href: "https://www.roblox.com/games/101716225967171/Oxfordshire-County-Beta",
     displayName: "Oxfordshire County Beta"
+  },
+  {
+    universeId: 586304564,
+    placeId: 1486528523,
+    href: "https://www.roblox.com/games/1486528523/RCPD-FR",
+    displayName: "RCPD:FR"
+  },
+  {
+    universeId: 7241681846,
+    placeId: 88729483564766,
+    href: "https://www.roblox.com/games/88729483564766/MONEYCALL",
+    displayName: "MONEYCALL"
   }
 ]
 

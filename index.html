@@ -1673,6 +1673,16 @@ return NetGuard`
       },
       101716225967171: {
         summary: "Game Scripter"
+      },
+      1486528523: {
+        summary: "Game Scripter/Performance Engineer"
+      },
+      88729483564766: {
+        playingLabel: "PEAK CCU 2.3k",
+        playingTitle: "Peak concurrent users 2,300",
+        visitsLabel: "Visits 1.1M",
+        visitsTitle: "1,100,000 visits",
+        summary: "Game Scripter"
       }
     }
 
@@ -1777,10 +1787,14 @@ return NetGuard`
           const subtitle = escapeHtml(game.creatorName || "Roblox")
           const playHref = escapeHtml(game.href || "#")
           const thumbnailUrl = escapeHtml(game.thumbnailUrl || "")
-          const playing = formatCompactNumber(game.playing)
-          const visits = formatCompactNumber(game.visits)
+          const defaultPlayingLabel = `CCU ${formatCompactNumber(game.playing)}`
+          const defaultVisitsLabel = `Visits ${formatCompactNumber(game.visits)}`
           const fullPlaying = Number(game.playing || 0).toLocaleString("en-US")
           const fullVisits = Number(game.visits || 0).toLocaleString("en-US")
+          const playingLabel = escapeHtml(meta.playingLabel || defaultPlayingLabel)
+          const visitsLabel = escapeHtml(meta.visitsLabel || defaultVisitsLabel)
+          const playingTitle = escapeHtml(meta.playingTitle || `${fullPlaying} players`)
+          const visitsTitle = escapeHtml(meta.visitsTitle || `${fullVisits} visits`)
           const summary = escapeHtml(meta.summary || "")
 
           return `
@@ -1793,8 +1807,8 @@ return NetGuard`
                     <div class="roblox-sub">${subtitle}</div>
                   </div>
                   <div class="roblox-chip-row">
-                    <span class="roblox-chip" title="${fullPlaying} players">CCU ${playing}</span>
-                    <span class="roblox-chip" title="${fullVisits} visits">Visits ${visits}</span>
+                    <span class="roblox-chip" title="${playingTitle}">${playingLabel}</span>
+                    <span class="roblox-chip" title="${visitsTitle}">${visitsLabel}</span>
                     <span class="roblox-chip">${summary}</span>
                   </div>
                 </div>
