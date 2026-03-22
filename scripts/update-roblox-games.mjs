@@ -37,6 +37,18 @@ const GAMES = [
     placeId: 88729483564766,
     href: "https://www.roblox.com/games/88729483564766/MONEYCALL",
     displayName: "MONEYCALL"
+  },
+  {
+    universeId: 2201173838,
+    placeId: 6068707488,
+    href: "https://www.roblox.com/games/6068707488/Navy-Simulator",
+    displayName: "Navy Simulator"
+  },
+  {
+    universeId: 4688177962,
+    placeId: 13476966119,
+    href: "https://www.roblox.com/games/13476966119/Buckingham-Palace",
+    displayName: "Buckingham Palace"
   }
 ]
 
