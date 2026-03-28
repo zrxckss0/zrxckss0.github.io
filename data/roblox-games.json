@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-28T20:28:37.114Z",
+  "updatedAt": "2026-03-28T20:58:06.254Z",
   "games": [
     {
       "universeId": 2092410051,
@@ -8,8 +8,8 @@
       "displayName": "Retail Tycoon 2",
       "name": "Retail Tycoon 2",
       "creatorName": "Secondhand Studios",
-      "playing": 2558,
-      "visits": 320521292,
+      "playing": 2454,
+      "visits": 320523628,
       "maxPlayers": 6,
       "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-c1ce567799f590d59ebc7f6e516289df/768/432/Image/Png/noFilter",
       "updated": "2025-11-09T23:41:04.593Z"
@@ -21,8 +21,8 @@
       "displayName": "South London Remastered",
       "name": "[WATCHES] South London Remastered 😈",
       "creatorName": "Money Motivated!",
-      "playing": 990,
-      "visits": 18807678,
+      "playing": 952,
+      "visits": 18810133,
       "maxPlayers": 35,
       "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-c35854fac60189406a9f31de1b2b050c/768/432/Image/Png/noFilter",
       "updated": "2026-03-25T23:28:47.2Z"
@@ -34,8 +34,8 @@
       "displayName": "Oxfordshire County Beta",
       "name": "🚑 [AMBULANCE!] Oxfordshire County Beta",
       "creatorName": "Oxfordshire County",
-      "playing": 221,
-      "visits": 2110072,
+      "playing": 224,
+      "visits": 2110844,
       "maxPlayers": 50,
       "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-e6f930fd3d0f4e7f047202ba0f77b5a9/768/432/Image/Png/noFilter",
       "updated": "2026-03-27T21:32:09.1987462Z"
@@ -47,11 +47,11 @@
       "displayName": "RCPD:FR",
       "name": "RCPD:FR",
       "creatorName": "First Response Studios.",
-      "playing": 99,
-      "visits": 6252378,
+      "playing": 94,
+      "visits": 6252619,
       "maxPlayers": 30,
       "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-9d86553f204ad9f089f36dfaf8ea6da8/768/432/Image/Png/noFilter",
-      "updated": "2026-03-28T19:38:10.7666549Z"
+      "updated": "2026-03-28T20:53:04.2794168Z"
     },
     {
       "universeId": 7241681846,
@@ -73,8 +73,8 @@
       "displayName": "Navy Simulator",
       "name": "⚓Navy Simulator",
       "creatorName": "SEA Military",
-      "playing": 252,
-      "visits": 34783327,
+      "playing": 253,
+      "visits": 34783737,
       "maxPlayers": 75,
       "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-d717d53e464dd8ccca42324c811f0e5a/768/432/Image/Png/noFilter",
       "updated": "2026-03-24T20:42:55.51Z"
@@ -86,8 +86,8 @@
       "displayName": "Buckingham Palace",
       "name": "Buckingham Palace",
       "creatorName": "[-] Royal Guards",
-      "playing": 253,
-      "visits": 17377618,
+      "playing": 249,
+      "visits": 17378079,
       "maxPlayers": 50,
       "thumbnailUrl": "https://tr.rbxcdn.com/180DAY-d580a17327598ddf9c56b0d2c79a3af0/768/432/Image/Png/noFilter",
       "updated": "2026-03-25T20:31:23.98Z"
