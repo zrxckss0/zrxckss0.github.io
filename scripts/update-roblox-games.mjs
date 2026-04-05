@@ -49,6 +49,12 @@ const GAMES = [
     placeId: 13476966119,
     href: "https://www.roblox.com/games/13476966119/Buckingham-Palace",
     displayName: "Buckingham Palace"
+  },
+  {
+    universeId: 3170483284,
+    placeId: 8265622251,
+    href: "https://www.roblox.com/games/8265622251/Croydon-London-Bus-Simulator",
+    displayName: "Croydon: London Bus Simulator"
   }
 ]
 
